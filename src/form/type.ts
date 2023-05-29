@@ -1,6 +1,8 @@
 import { ReactNode, ComponentType } from 'react'
+import { INITIALIZED } from './connector'
+import type Connector from './connector'
 
-type ObjectAny = Record<string, any>
+export type ObjectAny = Record<string, any>
 
 export interface Option {
   disabled?: boolean,
@@ -41,7 +43,7 @@ export interface Field {
   /** 必须 */
   required?: boolean,
 
-  /** 验证器类型 */
+  /** 验证器名字 */
   validator?: string,
 
   /** 标题 */
@@ -49,6 +51,11 @@ export interface Field {
 }
 
 export type Fields = Record<string, Field>
+
+export interface State {
+  [key: string]: Field,
+  [INITIALIZED]: boolean,
+}
 
 export interface RenderProps<T = ObjectAny> extends Field {
   extraProps: T,
@@ -72,11 +79,11 @@ export interface FieldProps<T = ObjectAny> {
   onChange?: (value: Field['value']) => void,
   extraProps: T,
   fid: string,
-  // connector?: Connector,
+  connector?: Connector,
 }
 
 export interface FormProps {
-  // connector: Connector,
+  connector: Connector,
   children: ReactNode,
   layout?: () => ReactNode
 }
