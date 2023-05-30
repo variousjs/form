@@ -1,61 +1,37 @@
 import Nycticorax from 'nycticorax'
 import type N from 'nycticorax'
 import {
-  Field, Fields, State, Renders, Validators, FieldChange, FieldChangeFn
+  Field, Fields, State, Renderers, Validators, FieldChange, FieldChangeParams
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
 export default class {
   private store: N<State>
-  private initialized: boolean
-  private initialFields: Fields
-  private renderComponents: Renders
-  private validatorFns: Validators
-  private fieldChange: FieldChangeFn
+  public renderers: Renderers
+  public validators: Validators
+  private fieldChange: FieldChange
 
-  constructor() {
-    this.initialized = false
-    this.initialFields = {}
-    this.renderComponents = {}
-    this.validatorFns = {}
-    this.fieldChange = () => null
+  constructor(
+    fields: Fields,
+    config: { renderers: Renderers, validators: Validators },
+  ) {
     this.store = new Nycticorax<State>()
+    this.renderers = config.renderers || {}
+    this.validators = config.validators || {}
+    this.fieldChange = () => null
+    this.init(fields)
   }
 
   public get state() {
     return this.store
   }
 
-  public set renders(renders: Renders) {
-    if (!this.initialized) {
-      this.renderComponents = renders
-    }
-  }
-
-  public get renders() {
-    return this.renderComponents
-  }
-
-  public set validators(validators: Validators) {
-    if (!this.initialized) {
-      this.validatorFns = validators
-    }
-  }
-
-  public get validators() {
-    return this.validatorFns
-  }
-
   public getField(key: string) {
     return this.store.getStore()[key]
   }
 
-  public resetField() {
-    this.store.emit({ ...this.initialFields }, true)
-  }
-
-  public set onChange(fn: FieldChangeFn) {
+  public set onChange(fn: FieldChange) {
     this.fieldChange = fn
   }
 
@@ -74,7 +50,7 @@ export default class {
 
   private async check(key?: string) {
     const state = this.store.getStore()
-    const result: FieldChange[] = []
+    const result: FieldChangeParams[] = []
     const keys = key ? [key] : Object.keys(state)
     const needChecks: { field: Field, key: string }[] = []
 
@@ -134,18 +110,11 @@ export default class {
     return res
   }
 
-  public init(fields: Fields) {
-    if (this.initialized) {
-      window.console.warn('Form can not be reinitialized.')
-      return
-    }
-
-    this.initialized = true
-    this.initialFields = fields
+  private init(fields: Fields) {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
 
     this.store.onChange = (changes) => {
-      const next = [] as FieldChange[]
+      const next = [] as FieldChangeParams[]
 
       Object.keys(changes).forEach((key) => {
         const [n, o] = changes[key] as [Field, Field]

@@ -62,16 +62,17 @@ export interface RenderProps<T = ObjectAny> extends Field {
   onChange: (v: Field['value']) => void,
   onValidate: (v: Field['value']) => void,
 }
-export type Renders = Record<string, ComponentType<RenderProps>>
+export type Renderer = ComponentType<RenderProps>
+export type Renderers = Record<string, Renderer>
 
-export type ValidatorFn = (value: Field['value']) => Promise<Field['error']>
-export type Validators = Record<string, ValidatorFn>
+export type Validator = (value: Field['value']) => Field['error'] | Promise<Field['error']>
+export type Validators = Record<string, Validator>
 
-export interface FieldChange {
+export interface FieldChangeParams {
   key: string,
   value: Field['value']
 }
-export type FieldChangeFn = (args: FieldChange[]) => void
+export type FieldChange = (args: FieldChangeParams[]) => void
 
 export interface FieldProps<T = ObjectAny> {
   title?: (props: Field) => ReactNode

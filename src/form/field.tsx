@@ -23,7 +23,7 @@ function F<T>(props: FieldProps<T>) {
     return null
   }
 
-  const Render = connector.renders[field.type]
+  const Render = connector.renderers[field.type]
 
   if (!Render) {
     return null
