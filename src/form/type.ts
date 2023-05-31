@@ -78,7 +78,7 @@ export interface FieldProps<T = ObjectAny> {
   title?: (props: Field) => ReactNode
   error?: (props: Field) => ReactNode
   onChange?: (value: Field['value']) => void,
-  extraProps: T,
+  extraProps?: T,
   fid: string,
   connector?: Connector,
 }
