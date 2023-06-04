@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import Form, { Field, Fields, Connector } from './form'
-import { Input, Radio } from './renderers'
+import { Input, Radio, Select } from './renderers'
 import { notEmpty } from './validators'
 
 const fields: Fields = {
@@ -20,10 +20,17 @@ const fields: Fields = {
       { label: 'NO', value: 'no' },
     ],
   },
+  select: {
+    title: 'Select',
+    type: 'select',
+    loading: true,
+    placeholder: 'select',
+  },
 }
 const renderers = {
   input: Input,
   radio: Radio,
+  select: Select,
 }
 const validators = {
   empty: notEmpty,
@@ -32,9 +39,35 @@ const validators = {
 const connector = new Connector(fields, { renderers, validators })
 
 const Entry = () => {
+  useEffect(() => {
+    setTimeout(() => {
+      connector.setField('select', {
+        options: [
+          { label: 'YES', value: 'yes' },
+          { label: 'NO', value: 'no' },
+        ],
+        loading: false,
+      })
+    }, 3000)
+  }, [])
+
   return (
     <div style={{ padding: 50 }}>
-      <Form connector={connector}>
+      <Form
+        connector={connector}
+        layout={(F, config, props) => {
+          const titleNode = props.title
+            ? props.title(config)
+            : (<p className="title">{config.title}</p>)
+
+          return (
+            <div style={{ marginBottom: 10 }} className="nes-container with-title">
+              {titleNode}
+              {F}
+            </div>
+          )
+        }}
+      >
         <div className="field">
           <Field
             extraProps={{ style: { marginTop: 10 } }}
@@ -43,8 +76,13 @@ const Entry = () => {
         </div>
         <div className="field">
           <Field
-            title={() => (<div style={{ height: 20 }} />)}
+            title={() => (<div>Custom</div>)}
             fid="option"
+          />
+        </div>
+        <div className="field">
+          <Field
+            fid="select"
           />
         </div>
       </Form>

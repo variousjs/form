@@ -1,4 +1,4 @@
-import { ReactNode, ComponentType } from 'react'
+import { ReactNode, ComponentType, ReactElement } from 'react'
 import { INITIALIZED } from './connector'
 import type Connector from './connector'
 
@@ -74,9 +74,20 @@ export interface FieldChangeParams {
 }
 export type FieldChange = (args: FieldChangeParams[]) => void
 
+export type TitleNode = (props: Field) => ReactNode
+export type ErrorNode = (props: Field) => ReactNode
+export type Layout = (
+  renderer: ReactElement,
+  config: Field,
+  fieldProps: {
+    title?: TitleNode,
+    error?: ErrorNode,
+  },
+) => ReactNode
+
 export interface FieldProps<T = ObjectAny> {
-  title?: (props: Field) => ReactNode
-  error?: (props: Field) => ReactNode
+  title?: TitleNode
+  error?: ErrorNode
   onChange?: (value: Field['value']) => void,
   extraProps?: T,
   fid: string,
@@ -86,5 +97,5 @@ export interface FieldProps<T = ObjectAny> {
 export interface FormProps {
   connector: Connector,
   children: ReactNode,
-  layout?: () => ReactNode
+  layout: Layout,
 }

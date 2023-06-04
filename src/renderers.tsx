@@ -15,8 +15,7 @@ export const Input: Renderer = (props) => {
 
 export const Radio: Renderer = (props) => {
   return (
-    <div className="nes-container with-title">
-      <h3 className="title">{props.title}</h3>
+    <>
       {
         props.options?.map((item) => (
           <label key={item.value}>
@@ -31,6 +30,34 @@ export const Radio: Renderer = (props) => {
           </label>
         ))
       }
+    </>
+  )
+}
+
+export const Select: Renderer = (props) => {
+  if (props.loading) {
+    return (
+      <div className="nes-badge">
+        <span className="is-primary">Loading</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="nes-select">
+      <select defaultValue="">
+        <option value="" disabled hidden>{props.placeholder}</option>
+        {
+          props.options?.map((item) => (
+            <option
+              key={item.value}
+              value={item.value}
+            >
+              {item.label}
+            </option>
+          ))
+        }
+      </select>
     </div>
   )
 }

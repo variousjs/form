@@ -13,7 +13,19 @@ const setProps = (props: FormProps): ReactNode => {
 
     // @ts-ignore
     if (element?.type?.displayName === 'VARIOUS_FIELD') {
-      return cloneElement(element, { ...(element.props || {}), connector: props.connector })
+      const F = cloneElement(element, {
+        ...element.props,
+        connector: props.connector,
+      })
+
+      return props.layout(
+        F,
+        props.connector.getField(element.props.fid),
+        {
+          title: element.props.title,
+          error: element.props.error,
+        },
+      )
     }
 
     if (element.props.children) {
@@ -22,6 +34,7 @@ const setProps = (props: FormProps): ReactNode => {
         children: setProps({
           ...element.props,
           connector: props.connector,
+          layout: props.layout,
         }),
       })
     }

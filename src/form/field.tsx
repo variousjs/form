@@ -6,8 +6,6 @@ function F<T>(props: FieldProps<T>) {
   const {
     connector,
     fid,
-    title,
-    error,
     extraProps = {},
     onChange = () => null,
   } = props
@@ -64,30 +62,17 @@ function F<T>(props: FieldProps<T>) {
     }
   }
 
-  const titleNode = title
-    ? title(field)
-    : <div className={`various-field-title ${field.required ? 'various-field-title-required' : ''}`}>
-      {field.title}
-    </div>
-  const errorNode = error
-    ? error(field)
-    : <div className="various-field-error">{field.error}</div>
-
   if (field.disabled) {
     return null
   }
 
   return (
-    <div className="various-field">
-      {titleNode}
-      <Render
-        {...field}
-        extraProps={extraProps as ObjectAny}
-        onChange={onValueChange}
-        onValidate={onFieldValidate}
-      />
-      {errorNode}
-    </div>
+    <Render
+      {...field}
+      extraProps={extraProps as ObjectAny}
+      onChange={onValueChange}
+      onValidate={onFieldValidate}
+    />
   )
 }
 
