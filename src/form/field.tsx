@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React from 'react'
 import { INITIALIZED } from './connector'
 import { Field, FieldProps, ObjectAny } from './type'
 
@@ -29,11 +29,10 @@ function F<T>(props: FieldProps<T>) {
 
   const onValueChange = async (value: Field['value']) => {
     const item: Field = connector.state.getStore()[fid]
-    if (item.loading || item.validating) {
-      return
-    }
     const next = { ...item, value }
+
     delete next.error
+
     connector.state.emit({ [fid]: next }, true)
     onChange(value)
   }
@@ -49,10 +48,10 @@ function F<T>(props: FieldProps<T>) {
         return
       }
 
-      connector.state.emit({ [fid]: { ...item, loading: true } }, true)
+      connector.state.emit({ [fid]: { ...item, validating: true } }, true)
 
       const error = await validator(value)
-      const next = { ...connector.state.getStore()[fid], loading: false }
+      const next = { ...connector.state.getStore()[fid], validating: false }
 
       if (error) {
         next.error = error
@@ -62,7 +61,7 @@ function F<T>(props: FieldProps<T>) {
     }
   }
 
-  if (field.disabled) {
+  if (field.hidden) {
     return null
   }
 

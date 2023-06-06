@@ -4,25 +4,27 @@ import { Renderer, FieldType, LayoutProps } from './form'
 export const Input: Renderer = (props) => {
   return (
     <input
-      {...props.extraProps}
       placeholder={props.placeholder as string}
-      className="nes-input"
+      className={`nes-input ${props.error ? 'is-error' : ''}`}
       value={props.value || ''}
-      onInput={(e) => props.onChange(e.currentTarget.value)}
+      onInput={(e) => {
+        props.onChange(e.currentTarget.value)
+        props.onValidate(e.currentTarget.value)
+      }}
     />
   )
 }
 
 export const Radio: Renderer = (props) => {
   return (
-    <>
+    <div {...props.extraProps}>
       {
         props.options?.map((item) => (
           <label key={item.value}>
             <input
               onChange={(e) => props.onChange(e.target.value)}
               type="radio"
-              className="nes-radio"
+              className="nes-radio is-dark"
               value={item.value}
               checked={props.value === item.value}
             />
@@ -30,7 +32,7 @@ export const Radio: Renderer = (props) => {
           </label>
         ))
       }
-    </>
+    </div>
   )
 }
 
@@ -64,19 +66,13 @@ export const Select: Renderer = (props) => {
 
 export const TitleNode = (props: FieldType) => {
   return (
-    <div>{props.title}???</div>
-  )
-}
-
-export const ErrorNode = (props: FieldType) => {
-  return (
-    <div>{props.error}</div>
+    <p className="title">{props.title} *</p>
   )
 }
 
 export const LayoutNode = (props: LayoutProps) => {
   const titleNode = props.title || (<p className="title">{props.config.title}</p>)
-  const errorNode = props.error || (<p className="error">{props.config.error}</p>)
+  const errorNode = props.error || (<p className="note nes-text is-error">{props.config.error}</p>)
 
   return (
     <div

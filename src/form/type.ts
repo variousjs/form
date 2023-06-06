@@ -22,8 +22,8 @@ export interface Field {
   /** 验证中 */
   validating?: boolean,
 
-  /** 只读 */
-  readonly?: boolean,
+  /** 隐藏 */
+  hidden?: boolean,
 
   /** 禁用 */
   disabled?: boolean,

@@ -1,24 +1,26 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import Form, { Field, Fields, Connector } from './form'
 import { Input, Radio, Select, TitleNode, LayoutNode } from './renderers'
-import { notEmpty } from './validators'
+import { notEmpty, promiseCheck } from './validators'
 
 const fields: Fields = {
   nickname: {
     title: 'Nickname',
     type: 'input',
     placeholder: 'Input Name',
-    validator: 'empty',
+    required: true,
+    validator: 'promiseCheck',
   },
   option: {
     title: 'Option',
     type: 'radio',
-    validator: 'empty',
     options: [
       { label: 'YES', value: 'yes' },
       { label: 'NO', value: 'no' },
     ],
+    validator: 'empty',
+    required: true,
   },
   select: {
     title: 'Select',
@@ -34,11 +36,14 @@ const renderers = {
 }
 const validators = {
   empty: notEmpty,
+  promiseCheck,
 }
 
 const connector = new Connector(fields, { renderers, validators })
 
 const Entry = () => {
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
     setTimeout(() => {
       connector.setField('select', {
@@ -59,14 +64,16 @@ const Entry = () => {
       >
         <div className="field">
           <Field
-            extraProps={{ style: { marginTop: 10 } }}
+            title={TitleNode}
             fid="nickname"
           />
         </div>
         <div className="field">
           <Field
-            title={TitleNode}
             fid="option"
+            extraProps={{
+              style: { background: '#212529', paddingTop: 10 },
+            }}
           />
         </div>
         <div className="field">
@@ -76,13 +83,28 @@ const Entry = () => {
         </div>
       </Form>
 
+      {
+        loading ? (
+          <div className="nes-badge">
+            <span className="is-warning">Submiting</span>
+          </div>
+        ) : null
+      }
+
       <button
         className="nes-btn is-primary"
-        style={{ marginTop: 20 }}
+        style={{ marginTop: 20, display: loading ? 'none' : 'block' }}
         onClick={async () => {
-          connector.setField('option', { title: '___' })
-          const res = await connector.submit()
-          console.log(res)
+          // connector.setField('option', { title: '___' })
+          setLoading(true)
+          try {
+            const res = await connector.submit()
+            console.log(res)
+          } catch (e) {
+            console.error(e)
+          } finally {
+            setLoading(false)
+          }
         }}
       >
         Submit
