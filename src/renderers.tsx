@@ -1,5 +1,5 @@
 import React from 'react'
-import { Renderer } from './form'
+import { Renderer, FieldType, LayoutProps } from './form'
 
 export const Input: Renderer = (props) => {
   return (
@@ -58,6 +58,34 @@ export const Select: Renderer = (props) => {
           ))
         }
       </select>
+    </div>
+  )
+}
+
+export const TitleNode = (props: FieldType) => {
+  return (
+    <div>{props.title}???</div>
+  )
+}
+
+export const ErrorNode = (props: FieldType) => {
+  return (
+    <div>{props.error}</div>
+  )
+}
+
+export const LayoutNode = (props: LayoutProps) => {
+  const titleNode = props.title || (<p className="title">{props.config.title}</p>)
+  const errorNode = props.error || (<p className="error">{props.config.error}</p>)
+
+  return (
+    <div
+      style={{ marginBottom: 10 }}
+      className="nes-container with-title"
+    >
+      {titleNode}
+      {props.renderer}
+      {errorNode}
     </div>
   )
 }

@@ -1,9 +1,14 @@
-import { Children, cloneElement, isValidElement, ReactNode, ReactElement } from 'react'
+import React, {
+  Children, cloneElement, isValidElement, ReactNode,
+} from 'react'
+import Layout from './layout'
 import { FormProps } from './type'
 
 export { default as Field } from './field'
 export { default as Connector } from './connector'
-export type { Fields, Validator, Renderer } from './type'
+export type {
+  Fields, Validator, Renderer, Field as FieldType, LayoutProps,
+} from './type'
 
 const setProps = (props: FormProps): ReactNode => {
   return Children.map(props.children, (element) => {
@@ -18,13 +23,17 @@ const setProps = (props: FormProps): ReactNode => {
         connector: props.connector,
       })
 
-      return props.layout(
-        F,
-        props.connector.getField(element.props.fid),
-        {
-          title: element.props.title,
-          error: element.props.error,
-        },
+      return (
+        <Layout
+          connector={props.connector}
+          elementProps={{
+            title: element.props.title,
+            error: element.props.error,
+            fid: element.props.fid,
+          }}
+          renderer={F}
+          layout={props.layout}
+        />
       )
     }
 

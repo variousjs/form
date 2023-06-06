@@ -74,16 +74,14 @@ export interface FieldChangeParams {
 }
 export type FieldChange = (args: FieldChangeParams[]) => void
 
-export type TitleNode = (props: Field) => ReactNode
-export type ErrorNode = (props: Field) => ReactNode
-export type Layout = (
+export type TitleNode = (props: Field) => JSX.Element
+export type ErrorNode = (props: Field) => JSX.Element
+export interface LayoutProps {
   renderer: ReactElement,
   config: Field,
-  fieldProps: {
-    title?: TitleNode,
-    error?: ErrorNode,
-  },
-) => ReactNode
+  title?: ReactElement,
+  error?: ReactElement,
+}
 
 export interface FieldProps<T = ObjectAny> {
   title?: TitleNode
@@ -97,5 +95,5 @@ export interface FieldProps<T = ObjectAny> {
 export interface FormProps {
   connector: Connector,
   children: ReactNode,
-  layout: Layout,
+  layout: (props: LayoutProps) => JSX.Element,
 }

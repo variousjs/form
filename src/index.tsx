@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import Form, { Field, Fields, Connector } from './form'
-import { Input, Radio, Select } from './renderers'
+import { Input, Radio, Select, TitleNode, LayoutNode } from './renderers'
 import { notEmpty } from './validators'
 
 const fields: Fields = {
@@ -55,18 +55,7 @@ const Entry = () => {
     <div style={{ padding: 50 }}>
       <Form
         connector={connector}
-        layout={(F, config, props) => {
-          const titleNode = props.title
-            ? props.title(config)
-            : (<p className="title">{config.title}</p>)
-
-          return (
-            <div style={{ marginBottom: 10 }} className="nes-container with-title">
-              {titleNode}
-              {F}
-            </div>
-          )
-        }}
+        layout={LayoutNode}
       >
         <div className="field">
           <Field
@@ -76,7 +65,7 @@ const Entry = () => {
         </div>
         <div className="field">
           <Field
-            title={() => (<div>Custom</div>)}
+            title={TitleNode}
             fid="option"
           />
         </div>
@@ -91,6 +80,7 @@ const Entry = () => {
         className="nes-btn is-primary"
         style={{ marginTop: 20 }}
         onClick={async () => {
+          connector.setField('option', { title: '___' })
           const res = await connector.submit()
           console.log(res)
         }}

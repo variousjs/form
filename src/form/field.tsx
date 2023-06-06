@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { INITIALIZED } from './connector'
 import { Field, FieldProps, ObjectAny } from './type'
 
