@@ -99,13 +99,17 @@ export default class {
     return store[key].value
   }
 
-  public getFieldValues() {
+  public getFieldsValue() {
     const store = this.store.getStore()
     const res = {} as Record<string, any>
     Object.keys(store).forEach((key) => {
       res[key] = store[key].value
     })
     return res
+  }
+
+  public validateField(key: string) {
+    return this.check(key)
   }
 
   public addField(key: string, data: Field) {

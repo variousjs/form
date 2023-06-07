@@ -50,7 +50,13 @@ export const Select: Renderer = (props) => {
 
   return (
     <div className="nes-select">
-      <select defaultValue="">
+      <select
+        onChange={(e) => {
+          props.onChange(e.target.value)
+          props.onValidate(e.target.value)
+        }}
+        defaultValue=""
+      >
         <option value="" disabled hidden>{props.placeholder}</option>
         {
           props.options?.map((item) => (

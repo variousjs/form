@@ -70,6 +70,10 @@ const Entry = () => {
         title: 'Add',
       })
     }, 3000)
+
+    connector.onChange = (v) => {
+      console.log(v)
+    }
   }, [])
 
   return (
@@ -107,8 +111,14 @@ const Entry = () => {
         </div>
         <div className="field">
           <Field
-            onChange={(v) => {
+            onChange={async (v) => {
               connector.setField('radio', { title: v })
+              try {
+                const res = await connector.validateField('radio')
+                console.log(res)
+              } catch (e) {
+                console.log(e)
+              }
             }}
             fid="add"
           />
