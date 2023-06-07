@@ -22,6 +22,9 @@ export interface Field {
   /** 验证中 */
   validating?: boolean,
 
+  /** 验证间隔 */
+  validateInterval?: number,
+
   /** 隐藏 */
   hidden?: boolean,
 

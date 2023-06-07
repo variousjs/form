@@ -1,6 +1,20 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { INITIALIZED } from './connector'
 import { Field, FieldProps, ObjectAny } from './type'
+
+const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(
+  func: F,
+  waitFor: number,
+) => {
+  let timeout: number
+
+  const debounced = (...args: Parameters<F>) => {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func(...args), waitFor)
+  }
+
+  return debounced
+}
 
 function F<T>(props: FieldProps<T>) {
   const {
@@ -48,13 +62,17 @@ function F<T>(props: FieldProps<T>) {
         return
       }
 
-      connector.state.emit({ [fid]: { ...item, validating: true } }, true)
+      connector.state.emit({ [fid]: {
+        ...item,
+        validating: true,
+        error: undefined,
+      }}, true)
 
       const error = await validator(value)
-      const next = { ...connector.state.getStore()[fid], validating: false }
-
-      if (error) {
-        next.error = error
+      const next = {
+        ...connector.state.getStore()[fid],
+        validating: false,
+        error,
       }
 
       connector.state.emit({ [fid]: next }, true)
@@ -65,12 +83,14 @@ function F<T>(props: FieldProps<T>) {
     return null
   }
 
+  const onValidate = useMemo(() => debounce(onFieldValidate, field.validateInterval || 300), [])
+
   return (
     <Render
       {...field}
       extraProps={extraProps as ObjectAny}
       onChange={onValueChange}
-      onValidate={onFieldValidate}
+      onValidate={onValidate}
     />
   )
 }

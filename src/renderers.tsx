@@ -66,7 +66,10 @@ export const Select: Renderer = (props) => {
 
 export const TitleNode = (props: FieldType) => {
   return (
-    <p className="title">{props.title} *</p>
+    <p className="title">
+      {props.title}
+      {props.validating ? ' ...' : ' *'}
+    </p>
   )
 }
 

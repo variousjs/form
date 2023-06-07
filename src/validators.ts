@@ -7,8 +7,7 @@ export const notEmpty: Validator = (v) => {
 }
 
 export const promiseCheck: Validator = async (v?: string) => {
-  console.log('checking =>>>', v)
-  await new Promise((r) => setTimeout(r, 3000))
+  await new Promise((r) => setTimeout(r, 300))
   if ((v?.length || 0) % 2 === 1) {
     return 'async error'
   }
