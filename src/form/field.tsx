@@ -53,9 +53,9 @@ function F<T>(props: FieldProps<T>) {
 
   const onFieldValidate = async (value: Field['value']) => {
     const item = connector.state.getStore()[fid]
-    const { required, validator: validatorName } = item
+    const { validator: validatorName } = item
 
-    if (required && validatorName) {
+    if (validatorName) {
       const validator = connector.validators[validatorName]
 
       if (!validator) {

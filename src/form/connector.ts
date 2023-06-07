@@ -63,7 +63,7 @@ export default class {
 
       result.push({ key, value: item.value })
 
-      if (!item.required || !item.validator || !this.validators[item.validator]) {
+      if (!item.validator || !this.validators[item.validator]) {
         continue
       }
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import Form, { Field, Fields, Connector } from './form'
 import { Input, Radio, Select, TitleNode, LayoutNode } from './renderers'
-import { notEmpty, promiseCheck } from './validators'
+import { notEmpty, promiseCheck, not } from './validators'
 
 const fields: Fields = {
   nickname: {
@@ -22,6 +22,15 @@ const fields: Fields = {
     validator: 'empty',
     required: true,
   },
+  radio: {
+    title: 'Option',
+    type: 'radio',
+    options: [
+      { label: 'This', value: 'thus' },
+      { label: 'Don\'t', value: 'donot' },
+    ],
+    validator: 'not',
+  },
   select: {
     title: 'Select',
     type: 'select',
@@ -37,6 +46,7 @@ const renderers = {
 const validators = {
   empty: notEmpty,
   promiseCheck,
+  not,
 }
 
 const connector = new Connector(fields, { renderers, validators })
@@ -71,6 +81,14 @@ const Entry = () => {
         <div className="field">
           <Field
             fid="option"
+            extraProps={{
+              style: { background: '#212529', paddingTop: 10 },
+            }}
+          />
+        </div>
+        <div className="field">
+          <Field
+            fid="radio"
             extraProps={{
               style: { background: '#212529', paddingTop: 10 },
             }}

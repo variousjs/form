@@ -22,7 +22,10 @@ export const Radio: Renderer = (props) => {
         props.options?.map((item) => (
           <label key={item.value}>
             <input
-              onChange={(e) => props.onChange(e.target.value)}
+              onChange={(e) => {
+                props.onChange(e.target.value)
+                props.onValidate(e.target.value)
+              }}
               type="radio"
               className="nes-radio is-dark"
               value={item.value}

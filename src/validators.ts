@@ -6,6 +6,12 @@ export const notEmpty: Validator = (v) => {
   }
 }
 
+export const not: Validator = (v) => {
+  if (!v || v === 'donot') {
+    return 'donot'
+  }
+}
+
 export const promiseCheck: Validator = async (v?: string) => {
   await new Promise((r) => setTimeout(r, 300))
   if ((v?.length || 0) % 2 === 1) {
