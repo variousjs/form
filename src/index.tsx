@@ -63,6 +63,12 @@ const Entry = () => {
         ],
         loading: false,
       })
+
+      connector.addField('add', {
+        type: 'input',
+        placeholder: 'add',
+        title: 'Add',
+      })
     }, 3000)
   }, [])
 
@@ -97,6 +103,14 @@ const Entry = () => {
         <div className="field">
           <Field
             fid="select"
+          />
+        </div>
+        <div className="field">
+          <Field
+            onChange={(v) => {
+              connector.setField('radio', { title: v })
+            }}
+            fid="add"
           />
         </div>
       </Form>

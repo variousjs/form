@@ -96,18 +96,25 @@ export default class {
 
   public getFieldValue(key: string) {
     const store = this.store.getStore()
-    return store[key]
+    return store[key].value
   }
 
   public getFieldValues() {
     const store = this.store.getStore()
     const res = {} as Record<string, any>
     Object.keys(store).forEach((key) => {
-      if (store[key].value !== undefined) {
-        res[key] = store[key].value
-      }
+      res[key] = store[key].value
     })
     return res
+  }
+
+  public addField(key: string, data: Field) {
+    const store = this.store.getStore()
+    if (store[key]) {
+      window.console.error('Duplicate field key')
+      return
+    }
+    this.store.emit({ [key]: data })
   }
 
   private init(fields: Fields) {
@@ -118,7 +125,7 @@ export default class {
 
       Object.keys(changes).forEach((key) => {
         const [n, o] = changes[key] as [Field, Field]
-        if (n.value !== o.value) {
+        if (n.value !== o?.value) {
           next.push({ key, value: n.value })
         }
       })
