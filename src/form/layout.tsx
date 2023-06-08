@@ -19,7 +19,7 @@ export default (props: Props) => {
   const field = store[elementProps.fid]
   const T = elementProps.title
   const E = elementProps.error
-  const L = props.layout || (() => <>You should define form `layout` props</>)
+  const L = props.layout || (() => null)
 
   if (!field) {
     return null

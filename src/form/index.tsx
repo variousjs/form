@@ -19,29 +19,26 @@ const setProps = (props: FormProps): ReactNode => {
     // @ts-ignore
     if (element?.type?.displayName === 'VARIOUS_FIELD') {
       const F = cloneElement(element, {
-        ...element.props,
+        ...element.props as any,
         connector: props.connector,
       })
 
       return (
         <Layout
           connector={props.connector}
-          elementProps={{
-            title: element.props.title,
-            error: element.props.error,
-            fid: element.props.fid,
-          }}
+          elementProps={element.props as any}
           renderer={F}
           layout={props.layout}
         />
       )
     }
 
+    // @ts-ignore
     if (element.props.children) {
       element = cloneElement(element, {
         // @ts-ignore
         children: setProps({
-          ...element.props,
+          ...element.props as any,
           connector: props.connector,
           layout: props.layout,
         }),

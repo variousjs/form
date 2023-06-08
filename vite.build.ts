@@ -8,7 +8,7 @@ export default defineConfig({
     },
     minify: false,
     lib: {
-      entry: './src/form/index.ts',
+      entry: './src/form/index.tsx',
       formats: ['cjs', 'es'],
       fileName: 'index',
     },

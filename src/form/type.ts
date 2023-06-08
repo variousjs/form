@@ -13,43 +13,43 @@ export interface Option {
 }
 
 export interface Field {
-  /** 渲染类型 */
+  /** Render Type */
   type?: string,
 
-  /** 加载中 */
+  /** Loading Status */
   loading?: boolean,
 
-  /** 验证中 */
+  /** Validating Status */
   validating?: boolean,
 
-  /** 验证间隔 */
+  /** Validate Interval */
   validateInterval?: number,
 
-  /** 隐藏 */
+  /** Hidden Field */
   hidden?: boolean,
 
-  /** 禁用 */
+  /** Disabled Status */
   disabled?: boolean,
 
-  /** 占位符 */
+  /** Field Placeholder */
   placeholder?: string | string[],
 
-  /** 错误 */
+  /** Error Message */
   error?: string | string[],
 
-  /** 值 */
+  /** Field Value */
   value?: any,
 
-  /** 选项 */
+  /** Field Options */
   options?: Option[],
 
-  /** 必须 */
+  /** Field Required */
   required?: boolean,
 
-  /** 验证器名字 */
+  /** Validator Name */
   validator?: string,
 
-  /** 标题 */
+  /** Field Title */
   title?: string | string[],
 }
 

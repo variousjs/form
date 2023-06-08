@@ -112,7 +112,7 @@ const Entry = () => {
         <div className="field">
           <Field
             onChange={async (v) => {
-              connector.setField('radio', { title: v })
+              connector.setField('add', { title: v })
               try {
                 const res = await connector.validateField('radio')
                 console.log(res)
