@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import Form, { Field, Fields, Connector } from './form'
+import Form, { Field, Connector, FieldProps } from './form'
 import { Input, Radio, Select, TitleNode, LayoutNode } from './renderers'
 import { notEmpty, promiseCheck, not } from './validators'
 
-const fields: Fields = {
+const fields: Record<string, FieldProps> = {
   nickname: {
     title: 'Nickname',
     type: 'input',

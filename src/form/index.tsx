@@ -7,7 +7,7 @@ import { FormProps } from './type'
 export { default as Field } from './field'
 export { default as Connector } from './connector'
 export type {
-  Fields, Validator, Renderer, Field as FieldType, LayoutProps,
+  Validator, Renderer, Field as FieldProps, LayoutProps,
 } from './type'
 
 const setProps = (props: FormProps): ReactNode => {

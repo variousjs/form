@@ -1,5 +1,5 @@
 import React from 'react'
-import { Renderer, FieldType, LayoutProps } from './form'
+import { Renderer, FieldProps, LayoutProps } from './form'
 
 export const Input: Renderer = (props) => {
   return (
@@ -73,7 +73,7 @@ export const Select: Renderer = (props) => {
   )
 }
 
-export const TitleNode = (props: FieldType) => {
+export const TitleNode = (props: FieldProps) => {
   return (
     <p className="title">
       {props.title}
