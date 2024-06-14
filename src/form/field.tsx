@@ -42,7 +42,7 @@ function F<T>(props: FieldProps<T>) {
   }
 
   const onValueChange = async (value: Field['value']) => {
-    const item: Field = connector.state.getStore()[fid]
+    const item: Field = connector.state.getStore(fid)
     const next = { ...item, value }
 
     delete next.error
@@ -52,7 +52,7 @@ function F<T>(props: FieldProps<T>) {
   }
 
   const onFieldValidate = async (value: Field['value']) => {
-    const item = connector.state.getStore()[fid]
+    const item = connector.state.getStore(fid)
     const { validator: validatorName } = item
 
     if (validatorName) {
@@ -70,7 +70,7 @@ function F<T>(props: FieldProps<T>) {
 
       const error = await validator(value)
       const next = {
-        ...connector.state.getStore()[fid],
+        ...connector.state.getStore(fid),
         validating: false,
         error,
       }

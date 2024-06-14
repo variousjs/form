@@ -1,102 +1,112 @@
-import { ReactNode, ComponentType, ReactElement } from 'react'
+import { ReactNode, ComponentType } from 'react'
 import { INITIALIZED } from './connector'
 import type Connector from './connector'
 
-export type ObjectAny = Record<string, any>
-
-export interface Option {
-  disabled?: boolean,
-  label?: string | string[],
-  value: any,
-  children?: Option[],
-  [key: string]: any,
-}
+type Primitive = boolean | number | string | undefined
+type PlainObject = Record<string, Primitive | Primitive[]>
 
 export interface Field {
-  /** Render Type */
-  type?: string,
+  /** field name */
+  name: string,
 
-  /** Loading Status */
+  /** field rendering component */
+  component?: string,
+
+  /** rendering component props */
+  componentProps?: PlainObject,
+
+  /** field loading status */
   loading?: boolean,
 
-  /** Validating Status */
+  /** field validating status */
   validating?: boolean,
 
-  /** Validate Interval */
-  validateInterval?: number,
-
-  /** Hidden Field */
+  /** field hidden status, value enable */
   hidden?: boolean,
 
-  /** Disabled Status */
+  /** field disabled status, value disabled */
   disabled?: boolean,
 
-  /** Field Placeholder */
-  placeholder?: string | string[],
-
-  /** Error Message */
+  /** field error message */
   error?: string | string[],
 
-  /** Field Value */
-  value?: any,
+  /** field Value */
+  value?: Primitive | Primitive[] | PlainObject,
 
-  /** Field Options */
-  options?: Option[],
-
-  /** Field Required */
+  /** field required status */
   required?: boolean,
 
-  /** Validator Name */
+  /** field validator name */
   validator?: string,
 
-  /** Field Title */
+  /** field title */
   title?: string | string[],
+
+  /** field description */
+  description?: string | string[],
+
+  /** field readOnly status */
+  readOnly?: boolean,
+
+  /** field has been modified */
+  modified?: boolean,
 }
 
+export interface RenderProps extends Field {
+  onChange: (v: Field['value']) => void,
+}
+
+export type Renderer = ComponentType<RenderProps>
+
+export type Validator = (
+  value: Field['value'],
+  field: Field,
+) => Field['error'] | Promise<Field['error']>
+
+export type TitleNode = (props: Field) => ReactNode
+export type ErrorNode = (props: Field) => ReactNode
+
+export interface FieldProps<P extends object = {}> {
+  title?: TitleNode
+  error?: ErrorNode
+  componentProps?: P,
+  name: string,
+  connector?: Connector,
+}
+
+export type FieldNode = (props: FieldProps) => ReactNode
+
+export interface LayoutProps {
+  componentNode: ReactNode,
+  field: Field,
+  titleNode?: ReactNode,
+  errorNode?: ReactNode,
+}
+
+export type LayoutNode = (props: LayoutProps) => ReactNode
+
+export interface FormProps {
+  readOnly?: boolean,
+  connector: Connector,
+  children: ReactNode,
+  fieldLayout: (props: LayoutProps) => ReactNode,
+}
+
+type FieldChangeCallback = (field: Field) => void
+
+export type FieldChange = (target: string, callback: FieldChangeCallback) => void
+
+// Internal
+
+export type ObjectAny = Record<string, any>
+
 export type Fields = Record<string, Field>
+
+export type Renderers = Record<string, Renderer>
 
 export interface State {
   [key: string]: Field,
   [INITIALIZED]: boolean,
 }
 
-export interface RenderProps<T = ObjectAny> extends Field {
-  extraProps: T,
-  onChange: (v: Field['value']) => void,
-  onValidate: (v: Field['value']) => void,
-}
-export type Renderer = ComponentType<RenderProps>
-export type Renderers = Record<string, Renderer>
-
-export type Validator = (value: Field['value']) => Field['error'] | Promise<Field['error']>
 export type Validators = Record<string, Validator>
-
-export interface FieldChangeParams {
-  key: string,
-  value: Field['value']
-}
-export type FieldChange = (args: FieldChangeParams[]) => void
-
-export type TitleNode = (props: Field) => JSX.Element
-export type ErrorNode = (props: Field) => JSX.Element
-export interface LayoutProps {
-  renderer: ReactElement,
-  config: Field,
-  title?: ReactElement,
-  error?: ReactElement,
-}
-
-export interface FieldProps<T = ObjectAny> {
-  title?: TitleNode
-  error?: ErrorNode
-  onChange?: (value: Field['value']) => void,
-  extraProps?: T,
-  fid: string,
-  connector?: Connector,
-}
-
-export interface FormProps {
-  connector: Connector,
-  children: ReactNode,
-  layout: (props: LayoutProps) => JSX.Element,
-}

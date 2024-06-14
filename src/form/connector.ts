@@ -1,7 +1,11 @@
 import Nycticorax from 'nycticorax'
 import type N from 'nycticorax'
 import {
-  Field, Fields, State, Renderers, Validators, FieldChange, FieldChangeParams
+  Field,
+  Fields,
+  State,
+  Renderers,
+  Validators,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
@@ -10,38 +14,56 @@ export default class {
   private store: N<State>
   public renderers: Renderers
   public validators: Validators
-  private fieldChange: FieldChange
 
   constructor(
     fields: Fields,
-    config: { renderers: Renderers, validators: Validators },
+    config: { components: Renderers, validators: Validators },
   ) {
     this.store = new Nycticorax<State>()
-    this.renderers = config.renderers || {}
+    this.renderers = config.components || {}
     this.validators = config.validators || {}
-    this.fieldChange = () => null
     this.init(fields)
   }
 
-  public get state() {
-    return this.store
+  private init(fields: Fields) {
+    this.store.createStore({ ...fields, [INITIALIZED]: true })
   }
 
-  public getField(key: string) {
-    return this.store.getStore()[key]
+  public getField(name: string) {
+    const field = this.store.getStore(name)
+    if (!field) {
+      throw new Error('field not exist')
+    }
+    return field
   }
 
-  public set onChange(fn: FieldChange) {
-    this.fieldChange = fn
+  public getFields() {
+    return this.store.getStore()
   }
 
-  public setField(key: string, data: Partial<Field>) {
-    const current = this.store.getStore()[key]
-    this.store.emit({ [key]: { ...current, ...data } }, true)
+  public setField(name: string, data: Omit<Field, 'name'>) {
+    const current = this.getField(name)
+    this.store.emit({ [name]: { ...current, ...data } }, true)
 
     if ('value' in data) {
-      this.check(key).catch(() => { /* ignore */ })
+      this.check(name).catch(() => { /* ignore */ })
     }
+  }
+
+  public addField(name: string, data: Field) {
+    if (this.store.getStore(name)) {
+      throw new Error('duplicate field')
+    }
+    this.store.emit({ [name]: data })
+  }
+
+  public disableField(name: string) {
+    const current = this.getField(name)
+    this.store.emit({ [name]: { ...current, disabled: true } })
+  }
+
+  public validateField(name: string) {
+    return this.check(name)
   }
 
   public submit() {
@@ -92,51 +114,5 @@ export default class {
     }
 
     return result
-  }
-
-  public getFieldValue(key: string) {
-    const store = this.store.getStore()
-    return store[key].value
-  }
-
-  public getFieldsValue() {
-    const store = this.store.getStore()
-    const res = {} as Record<string, any>
-    Object.keys(store).forEach((key) => {
-      res[key] = store[key].value
-    })
-    return res
-  }
-
-  public validateField(key: string) {
-    return this.check(key)
-  }
-
-  public addField(key: string, data: Field) {
-    const store = this.store.getStore()
-    if (store[key]) {
-      window.console.error('Duplicate field key')
-      return
-    }
-    this.store.emit({ [key]: data })
-  }
-
-  private init(fields: Fields) {
-    this.store.createStore({ ...fields, [INITIALIZED]: true })
-
-    this.store.onChange = (changes) => {
-      const next = [] as FieldChangeParams[]
-
-      Object.keys(changes).forEach((key) => {
-        const [n, o] = changes[key] as [Field, Field]
-        if (n.value !== o?.value) {
-          next.push({ key, value: n.value })
-        }
-      })
-
-      if (next.length) {
-        this.fieldChange(next)
-      }
-    }
   }
 }
