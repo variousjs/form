@@ -1,13 +1,20 @@
 import React, {
-  Children, cloneElement, isValidElement, ReactNode,
+  Children,
+  cloneElement,
+  isValidElement,
+  ReactNode,
+  ReactElement,
 } from 'react'
-import Layout from './layout'
-import { FormProps } from './type'
+import FieldWrapper from './field-wrapper'
+import { FieldProps, FormProps } from './type'
 
 export { default as Field } from './field'
 export { default as Connector } from './connector'
 export type {
-  Validator, Renderer, Field as FieldProps, LayoutProps,
+  Validator,
+  Renderer,
+  Field as FieldProps,
+  LayoutProps,
 } from './type'
 
 const setProps = (props: FormProps): ReactNode => {
@@ -24,23 +31,22 @@ const setProps = (props: FormProps): ReactNode => {
       })
 
       return (
-        <Layout
+        <FieldWrapper
           connector={props.connector}
-          elementProps={element.props as any}
-          renderer={F}
-          layout={props.layout}
+          fieldProps={element.props as any}
+          componentNode={F}
+          layoutNode={props.fieldLayout}
         />
       )
     }
 
-    // @ts-ignore
     if (element.props.children) {
       element = cloneElement(element, {
         // @ts-ignore
         children: setProps({
           ...element.props as any,
           connector: props.connector,
-          layout: props.layout,
+          fielayout: props.fieldLayout,
         }),
       })
     }
@@ -49,4 +55,4 @@ const setProps = (props: FormProps): ReactNode => {
   })
 }
 
-export default (props: FormProps) => setProps(props) as JSX.Element
+export default (props: FormProps) => setProps(props) as ReactElement

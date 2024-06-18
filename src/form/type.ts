@@ -1,11 +1,11 @@
-import { ReactNode, ComponentType } from 'react'
+import { ReactNode, ComponentType, ReactElement } from 'react'
 import { INITIALIZED } from './connector'
 import type Connector from './connector'
 
 type Primitive = boolean | number | string | undefined
 type PlainObject = Record<string, Primitive | Primitive[]>
 
-export interface Field {
+export interface Field<P extends object = {}> {
   /** field name */
   name: string,
 
@@ -13,7 +13,7 @@ export interface Field {
   component?: string,
 
   /** rendering component props */
-  componentProps?: PlainObject,
+  componentProps?: P,
 
   /** field loading status */
   loading?: boolean,
@@ -52,24 +52,23 @@ export interface Field {
   modified?: boolean,
 }
 
-export interface RenderProps extends Field {
+export interface RenderProps<P extends object = {}> extends Field<P> {
   onChange: (v: Field['value']) => void,
 }
 
-export type Renderer = ComponentType<RenderProps>
+export type Renderer<P extends object = {}> = ComponentType<RenderProps<P>>
 
 export type Validator = (
   value: Field['value'],
   field: Field,
 ) => Field['error'] | Promise<Field['error']>
 
-export type TitleNode = (props: Field) => ReactNode
-export type ErrorNode = (props: Field) => ReactNode
+export type TitleNode = (field: Field) => ReactNode
+export type ErrorNode = (field: Field) => ReactNode
 
-export interface FieldProps<P extends object = {}> {
+export interface FieldProps {
   title?: TitleNode
   error?: ErrorNode
-  componentProps?: P,
   name: string,
   connector?: Connector,
 }
@@ -83,18 +82,14 @@ export interface LayoutProps {
   errorNode?: ReactNode,
 }
 
-export type LayoutNode = (props: LayoutProps) => ReactNode
+export type LayoutNode = (props: LayoutProps) => ReactElement
 
 export interface FormProps {
   readOnly?: boolean,
   connector: Connector,
   children: ReactNode,
-  fieldLayout: (props: LayoutProps) => ReactNode,
+  fieldLayout: (props: LayoutProps) => ReactElement,
 }
-
-type FieldChangeCallback = (field: Field) => void
-
-export type FieldChange = (target: string, callback: FieldChangeCallback) => void
 
 // Internal
 
@@ -110,3 +105,17 @@ export interface State {
 }
 
 export type Validators = Record<string, Validator>
+
+export interface FieldValue {
+  key: string,
+  value: Field['value'],
+}
+
+interface FieldWraperProps {
+  connector: Connector,
+  fieldProps: Omit<FieldProps, 'connector'>,
+  componentNode: ReactNode,
+  layoutNode: LayoutNode,
+}
+
+export type FieldWrapper = (props: FieldWraperProps) => ReactElement

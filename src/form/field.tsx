@@ -1,96 +1,41 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { INITIALIZED } from './connector'
-import { Field, FieldProps, ObjectAny } from './type'
+import { Field, FieldProps } from './type'
 
-const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(
-  func: F,
-  waitFor: number,
-) => {
-  let timeout: number
-
-  const debounced = (...args: Parameters<F>) => {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func(...args), waitFor)
-  }
-
-  return debounced
-}
-
-function F<T>(props: FieldProps<T>) {
+function F(props: FieldProps) {
   const {
     connector,
-    fid,
-    extraProps = {},
-    onChange = () => null,
+    name,
   } = props
 
   if (!connector) {
     return null
   }
 
-  const store = connector.state.useStore(fid, INITIALIZED)
-  const field: Field = store[fid]
+  const store = connector.store.useStore(name, INITIALIZED)
+  const field: Field = store[name]
 
-  if (!store[INITIALIZED] || !field || !field.type) {
+  if (!store[INITIALIZED] || !field || !field.component) {
     return null
   }
 
-  const Render = connector.renderers[field.type]
+  const Render = connector.renderers[field.component]
 
-  if (!Render) {
+  if (field.hidden || !Render) {
     return null
   }
 
   const onValueChange = async (value: Field['value']) => {
-    const item: Field = connector.state.getStore(fid)
-    const next = { ...item, value }
-
-    delete next.error
-
-    connector.state.emit({ [fid]: next }, true)
-    onChange(value)
+    const item: Field = connector.store.getStore(name)
+    const { error, ...rest } = item
+    const next = { ...rest, value }
+    connector.store.emit({ [name]: next }, true)
   }
-
-  const onFieldValidate = async (value: Field['value']) => {
-    const item = connector.state.getStore(fid)
-    const { validator: validatorName } = item
-
-    if (validatorName) {
-      const validator = connector.validators[validatorName]
-
-      if (!validator) {
-        return
-      }
-
-      connector.state.emit({ [fid]: {
-        ...item,
-        validating: true,
-        error: undefined,
-      }}, true)
-
-      const error = await validator(value)
-      const next = {
-        ...connector.state.getStore(fid),
-        validating: false,
-        error,
-      }
-
-      connector.state.emit({ [fid]: next }, true)
-    }
-  }
-
-  if (field.hidden) {
-    return null
-  }
-
-  const onValidate = useMemo(() => debounce(onFieldValidate, field.validateInterval || 300), [])
 
   return (
     <Render
       {...field}
-      extraProps={extraProps as ObjectAny}
       onChange={onValueChange}
-      onValidate={onValidate}
     />
   )
 }

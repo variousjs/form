@@ -6,12 +6,13 @@ import {
   State,
   Renderers,
   Validators,
+  FieldValue,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
 export default class {
-  private store: N<State>
+  public store: N<State>
   public renderers: Renderers
   public validators: Validators
 
@@ -57,11 +58,6 @@ export default class {
     this.store.emit({ [name]: data })
   }
 
-  public disableField(name: string) {
-    const current = this.getField(name)
-    this.store.emit({ [name]: { ...current, disabled: true } })
-  }
-
   public validateField(name: string) {
     return this.check(name)
   }
@@ -72,7 +68,7 @@ export default class {
 
   private async check(key?: string) {
     const state = this.store.getStore()
-    const result: FieldChangeParams[] = []
+    const result: FieldValue[] = []
     const keys = key ? [key] : Object.keys(state)
     const needChecks: { field: Field, key: string }[] = []
 
@@ -91,12 +87,12 @@ export default class {
 
       needChecks.push({ key, field: item })
 
-      this.store.emit({ [key]: { ...item, validating: true } }, true)
+      this.store.emit({ [key]: { ...item, validating: true } })
     }
 
     const checkResults = await Promise.all(needChecks.map(async (item) => {
       const { key, field } = item
-      const error = await this.validators[field.validator!](field.value)
+      const error = await this.validators[field.validator!](field.value, field)
 
       const next: Field = { ...field, validating: false }
       if (error) {
