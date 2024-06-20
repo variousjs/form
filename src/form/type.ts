@@ -2,10 +2,10 @@ import { ReactNode, ComponentType, ReactElement } from 'react'
 import { INITIALIZED } from './connector'
 import type Connector from './connector'
 
-type Primitive = boolean | number | string | undefined
+type Primitive = boolean | number | string
 type PlainObject = Record<string, Primitive | Primitive[]>
 
-export interface Field<P extends object = {}> {
+export interface FieldData<P extends object = {}> {
   /** field name */
   name: string,
 
@@ -52,19 +52,19 @@ export interface Field<P extends object = {}> {
   modified?: boolean,
 }
 
-export interface RenderProps<P extends object = {}> extends Field<P> {
-  onChange: (v: Field['value']) => void,
+export interface FieldComponentProps<P extends object = {}> extends FieldData<P> {
+  onChange: (v: FieldData['value']) => void,
 }
 
-export type Renderer<P extends object = {}> = ComponentType<RenderProps<P>>
+export type FieldComponent<P extends object = {}> = ComponentType<FieldComponentProps<P>>
 
 export type Validator = (
-  value: Field['value'],
-  field: Field,
-) => Field['error'] | Promise<Field['error']>
+  value: FieldData['value'],
+  field: FieldData,
+) => FieldData['error'] | Promise<FieldData['error']>
 
-export type TitleNode = (field: Field) => ReactNode
-export type ErrorNode = (field: Field) => ReactNode
+export type TitleNode = (field: FieldData) => ReactNode
+export type ErrorNode = (field: FieldData) => ReactNode
 
 export interface FieldProps {
   title?: TitleNode
@@ -77,7 +77,7 @@ export type FieldNode = (props: FieldProps) => ReactNode
 
 export interface LayoutProps {
   componentNode: ReactNode,
-  field: Field,
+  field: FieldData,
   titleNode?: ReactNode,
   errorNode?: ReactNode,
 }
@@ -95,12 +95,12 @@ export interface FormProps {
 
 export type ObjectAny = Record<string, any>
 
-export type Fields = Record<string, Field>
+export type FieldDatas = Record<string, FieldData>
 
-export type Renderers = Record<string, Renderer>
+export type FieldComponents = Record<string, FieldComponent>
 
 export interface State {
-  [key: string]: Field,
+  [key: string]: FieldData,
   [INITIALIZED]: boolean,
 }
 
@@ -108,7 +108,7 @@ export type Validators = Record<string, Validator>
 
 export interface FieldValue {
   key: string,
-  value: Field['value'],
+  value: FieldData['value'],
 }
 
 interface FieldWraperProps {
@@ -118,4 +118,4 @@ interface FieldWraperProps {
   layoutNode: LayoutNode,
 }
 
-export type FieldWrapper = (props: FieldWraperProps) => ReactElement
+export type FieldWrapper = (props: FieldWraperProps) => ReactElement | null

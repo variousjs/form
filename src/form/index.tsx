@@ -6,15 +6,21 @@ import React, {
   ReactElement,
 } from 'react'
 import FieldWrapper from './field-wrapper'
-import { FieldProps, FormProps } from './type'
+import { FormProps } from './type'
 
 export { default as Field } from './field'
 export { default as Connector } from './connector'
 export type {
+  FieldComponentProps,
+  FieldComponent,
+  TitleNode,
+  ErrorNode,
+  FieldProps,
   Validator,
-  Renderer,
-  Field as FieldProps,
+  FieldData,
   LayoutProps,
+  LayoutNode,
+  FormProps,
 } from './type'
 
 const setProps = (props: FormProps): ReactNode => {

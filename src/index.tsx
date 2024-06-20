@@ -1,55 +1,68 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import Form, { Field, Connector, FieldProps } from './form'
-import { Input, Radio, Select, TitleNode, LayoutNode } from './renderers'
+import Form, { Field, Connector, FieldData, Validator, FieldComponent } from './form'
+import { Input, Radio, Select, Title, Layout } from './renderers'
 import { notEmpty, promiseCheck, not } from './validators'
 
-const fields: Record<string, FieldProps> = {
+const fields: Record<string, FieldData> = {
   nickname: {
     title: 'Nickname',
-    type: 'input',
-    placeholder: 'Input Name',
+    component: 'input',
+    componentProps: {
+      placeholder: 'Input Name',
+    },
+    name: 'nickname',
     required: true,
     validator: 'promiseCheck',
   },
   option: {
     title: 'Option',
-    type: 'radio',
-    options: [
-      { label: 'YES', value: 'yes' },
-      { label: 'NO', value: 'no' },
-    ],
+    component: 'radio',
+    componentProps: {
+      options: [
+        { label: 'YES', value: 'yes' },
+        { label: 'NO', value: 'no' },
+      ],
+    },
+    name: 'option',
     validator: 'empty',
     required: true,
   },
   radio: {
     title: 'Option',
-    type: 'radio',
-    options: [
-      { label: 'This', value: 'thus' },
-      { label: 'Don\'t', value: 'donot' },
-    ],
+    component: 'radio',
+    componentProps: {
+      options: [
+        { label: 'This', value: 'thus' },
+        { label: 'Don\'t', value: 'donot' },
+      ],
+    },
+    name: 'radio',
     validator: 'not',
   },
   select: {
     title: 'Select',
-    type: 'select',
+    component: 'select',
     loading: true,
-    placeholder: 'select',
+    componentProps: {
+      placeholder: 'select',
+    },
+    name: 'select',
   },
 }
 const renderers = {
   input: Input,
   radio: Radio,
   select: Select,
-}
+} as Record<string, FieldComponent<any>>
+
 const validators = {
   empty: notEmpty,
   promiseCheck,
   not,
-}
+} as Record<string, Validator>
 
-const connector = new Connector(fields, { renderers, validators })
+const connector = new Connector(fields, { components: renderers, validators })
 
 const Entry = () => {
   const [loading, setLoading] = useState(false)
@@ -57,84 +70,67 @@ const Entry = () => {
   useEffect(() => {
     setTimeout(() => {
       connector.setField('select', {
-        options: [
-          { label: 'YES', value: 'yes' },
-          { label: 'NO', value: 'no' },
-        ],
+        componentProps: {
+          options: [
+            { label: 'YES', value: 'yes' },
+            { label: 'NO', value: 'no' },
+          ],
+        },
         loading: false,
       })
 
       connector.addField('add', {
-        type: 'input',
-        placeholder: 'add',
+        name: 'add',
+        component: 'input',
+        componentProps: {
+          placeholder: 'add',
+        },
         title: 'Add',
       })
     }, 3000)
-
-    connector.onChange = (v) => {
-      console.log(v)
-    }
   }, [])
 
   return (
     <div style={{ padding: 50 }}>
       <Form
         connector={connector}
-        layout={LayoutNode}
+        fieldLayout={Layout}
       >
         <div className="field">
           <Field
-            title={TitleNode}
-            fid="nickname"
+            title={Title}
+            name="nickname"
           />
         </div>
         <div className="field">
           <Field
-            fid="option"
-            extraProps={{
-              style: { background: '#212529', paddingTop: 10 },
-            }}
+            name="option"
           />
         </div>
         <div className="field">
           <Field
-            fid="radio"
-            extraProps={{
-              style: { background: '#212529', paddingTop: 10 },
-            }}
+            name="radio"
           />
         </div>
         <div className="field">
           <Field
-            fid="select"
+            name="select"
           />
         </div>
         <div className="field">
           <Field
-            onChange={async (v) => {
-              connector.setField('add', { title: v })
-              try {
-                const res = await connector.validateField('radio')
-                console.log(res)
-              } catch (e) {
-                console.log(e)
-              }
-            }}
-            fid="add"
+            name="add"
           />
         </div>
       </Form>
 
       {
         loading ? (
-          <div className="nes-badge">
-            <span className="is-warning">Submiting</span>
-          </div>
+          <span className="is-warning">Submiting</span>
         ) : null
       }
 
       <button
-        className="nes-btn is-primary"
         style={{ marginTop: 20, display: loading ? 'none' : 'block' }}
         onClick={async () => {
           // connector.setField('option', { title: '___' })

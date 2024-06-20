@@ -1,10 +1,10 @@
 import Nycticorax from 'nycticorax'
 import type N from 'nycticorax'
 import {
-  Field,
-  Fields,
+  FieldData,
+  FieldDatas,
   State,
-  Renderers,
+  FieldComponents,
   Validators,
   FieldValue,
 } from './type'
@@ -13,12 +13,12 @@ export const INITIALIZED = Symbol('INITIALIZED')
 
 export default class {
   public store: N<State>
-  public renderers: Renderers
+  public renderers: FieldComponents
   public validators: Validators
 
   constructor(
-    fields: Fields,
-    config: { components: Renderers, validators: Validators },
+    fields: FieldDatas,
+    config: { components: FieldComponents, validators: Validators },
   ) {
     this.store = new Nycticorax<State>()
     this.renderers = config.components || {}
@@ -26,7 +26,7 @@ export default class {
     this.init(fields)
   }
 
-  private init(fields: Fields) {
+  private init(fields: FieldDatas) {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
   }
 
@@ -42,7 +42,7 @@ export default class {
     return this.store.getStore()
   }
 
-  public setField(name: string, data: Omit<Field, 'name'>) {
+  public setField(name: string, data: Omit<FieldData, 'name'>) {
     const current = this.getField(name)
     this.store.emit({ [name]: { ...current, ...data } }, true)
 
@@ -51,7 +51,7 @@ export default class {
     }
   }
 
-  public addField(name: string, data: Field) {
+  public addField(name: string, data: FieldData) {
     if (this.store.getStore(name)) {
       throw new Error('duplicate field')
     }
@@ -70,11 +70,11 @@ export default class {
     const state = this.store.getStore()
     const result: FieldValue[] = []
     const keys = key ? [key] : Object.keys(state)
-    const needChecks: { field: Field, key: string }[] = []
+    const needChecks: { field: FieldData, key: string }[] = []
 
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i]
-      const item: Field = state[key]
+      const item: FieldData = state[key]
       if (item.disabled) {
         continue
       }
@@ -94,7 +94,7 @@ export default class {
       const { key, field } = item
       const error = await this.validators[field.validator!](field.value, field)
 
-      const next: Field = { ...field, validating: false }
+      const next: FieldData = { ...field, validating: false }
       if (error) {
         next.error = error
       }

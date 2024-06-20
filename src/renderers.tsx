@@ -1,33 +1,30 @@
 import React from 'react'
-import { Renderer, FieldProps, LayoutProps } from './form'
+import { FieldComponent, LayoutNode, TitleNode } from './form'
 
-export const Input: Renderer = (props) => {
+export const Input: FieldComponent<{ placeholder: string }> = (props) => {
   return (
     <input
-      placeholder={props.placeholder as string}
-      className={`nes-input ${props.error ? 'is-error' : ''}`}
-      value={props.value || ''}
+      placeholder={props.componentProps?.placeholder}
+      className={props.error ? 'is-error' : ''}
+      value={props.value as string}
       onInput={(e) => {
         props.onChange(e.currentTarget.value)
-        props.onValidate(e.currentTarget.value)
       }}
     />
   )
 }
 
-export const Radio: Renderer = (props) => {
+export const Radio: FieldComponent<{ options: { label: string, value: string }[] }> = (props) => {
   return (
-    <div {...props.extraProps}>
+    <div>
       {
-        props.options?.map((item) => (
+        props.componentProps?.options?.map((item) => (
           <label key={item.value}>
             <input
               onChange={(e) => {
                 props.onChange(e.target.value)
-                props.onValidate(e.target.value)
               }}
               type="radio"
-              className="nes-radio is-dark"
               value={item.value}
               checked={props.value === item.value}
             />
@@ -39,7 +36,7 @@ export const Radio: Renderer = (props) => {
   )
 }
 
-export const Select: Renderer = (props) => {
+export const Select: FieldComponent<{ options: { label: string, value: string }[] }> = (props) => {
   if (props.loading) {
     return (
       <div className="nes-badge">
@@ -53,13 +50,12 @@ export const Select: Renderer = (props) => {
       <select
         onChange={(e) => {
           props.onChange(e.target.value)
-          props.onValidate(e.target.value)
         }}
         defaultValue=""
       >
-        <option value="" disabled hidden>{props.placeholder}</option>
+        <option value="" disabled hidden>请选择</option>
         {
-          props.options?.map((item) => (
+          props.componentProps?.options?.map((item) => (
             <option
               key={item.value}
               value={item.value}
@@ -73,7 +69,7 @@ export const Select: Renderer = (props) => {
   )
 }
 
-export const TitleNode = (props: FieldProps) => {
+export const Title: TitleNode = (props) => {
   return (
     <p className="title">
       {props.title}
@@ -82,17 +78,16 @@ export const TitleNode = (props: FieldProps) => {
   )
 }
 
-export const LayoutNode = (props: LayoutProps) => {
-  const titleNode = props.title || (<p className="title">{props.config.title}</p>)
-  const errorNode = props.error || (<p className="note nes-text is-error">{props.config.error}</p>)
+export const Layout: LayoutNode = (props) => {
+  const titleNode = props.titleNode || (<p className="title">{props.field.title}</p>)
+  const errorNode = props.errorNode || (<p className="is-error">{props.field.error}</p>)
 
   return (
     <div
       style={{ marginBottom: 10 }}
-      className="nes-container with-title"
     >
       {titleNode}
-      {props.renderer}
+      {props.componentNode}
       {errorNode}
     </div>
   )
