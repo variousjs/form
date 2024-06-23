@@ -52,7 +52,7 @@ const setProps = (props: FormProps): ReactNode => {
         children: setProps({
           ...element.props as any,
           connector: props.connector,
-          fielayout: props.fieldLayout,
+          fieldLayout: props.fieldLayout,
         }),
       })
     }

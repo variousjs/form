@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { FieldComponent, LayoutNode, TitleNode } from './form'
 
 export const Input: FieldComponent<{ placeholder: string }> = (props) => {
@@ -36,7 +36,10 @@ export const Radio: FieldComponent<{ options: { label: string, value: string }[]
   )
 }
 
-export const Select: FieldComponent<{ options: { label: string, value: string }[] }> = (props) => {
+export const Select: FieldComponent<{
+  options: { label: string, value: string }[],
+  extra?: ReactNode,
+}> = (props) => {
   if (props.loading) {
     return (
       <div className="nes-badge">
@@ -46,7 +49,8 @@ export const Select: FieldComponent<{ options: { label: string, value: string }[
   }
 
   return (
-    <div className="nes-select">
+    <div>
+      <div>{props.componentProps?.extra}</div>
       <select
         onChange={(e) => {
           props.onChange(e.target.value)

@@ -7,17 +7,18 @@ import {
   FieldComponents,
   Validators,
   FieldValue,
+  UnionString,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
-export default class {
+export default class<T extends FieldDatas = {}> {
   public store: N<State>
   public renderers: FieldComponents
   public validators: Validators
 
   constructor(
-    fields: FieldDatas,
+    fields: T,
     config: { components: FieldComponents, validators: Validators },
   ) {
     this.store = new Nycticorax<State>()
@@ -30,7 +31,7 @@ export default class {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
   }
 
-  public getField(name: string) {
+  public getField(name: UnionString<keyof T>) {
     const field = this.store.getStore(name)
     if (!field) {
       throw new Error('field not exist')
@@ -39,16 +40,34 @@ export default class {
   }
 
   public getFields() {
-    return this.store.getStore()
+    const state = this.store.getStore()
+    return Object.keys(state).reduce((pre, cur) => ({
+      ...pre,
+      [cur]: state[cur],
+    }), {} as FieldDatas)
   }
 
-  public setField(name: string, data: Omit<FieldData, 'name'>) {
+  public setField(name: UnionString<keyof T>, data: Omit<FieldData, 'componentProps'>) {
     const current = this.getField(name)
     this.store.emit({ [name]: { ...current, ...data } }, true)
 
     if ('value' in data) {
       this.check(name).catch(() => { /* ignore */ })
     }
+  }
+
+  public setFieldComponentProps<P extends object = {}>(
+    name: UnionString<keyof T>,
+    data: FieldData<P>['componentProps'],
+    replace?: boolean,
+  ) {
+    const current = this.getField(name)
+    this.store.emit({
+      [name]: {
+        ...current,
+        componentProps: replace ? data : { ...current.componentProps, ...data },
+      },
+    })
   }
 
   public addField(name: string, data: FieldData) {
@@ -58,18 +77,18 @@ export default class {
     this.store.emit({ [name]: data })
   }
 
-  public validateField(name: string) {
+  public validateField(name: UnionString<keyof T>) {
     return this.check(name)
   }
 
-  public submit() {
+  public validateFields() {
     return this.check()
   }
 
-  private async check(key?: string) {
+  private async check(name?: UnionString<keyof T>) {
     const state = this.store.getStore()
     const result: FieldValue[] = []
-    const keys = key ? [key] : Object.keys(state)
+    const keys = (name ? [name] : Object.keys(state))
     const needChecks: { field: FieldData, key: string }[] = []
 
     for (let i = 0; i < keys.length; i += 1) {

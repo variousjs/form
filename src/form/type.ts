@@ -6,9 +6,6 @@ type Primitive = boolean | number | string
 type PlainObject = Record<string, Primitive | Primitive[]>
 
 export interface FieldData<P extends object = {}> {
-  /** field name */
-  name: string,
-
   /** field rendering component */
   component?: string,
 
@@ -93,8 +90,6 @@ export interface FormProps {
 
 // Internal
 
-export type ObjectAny = Record<string, any>
-
 export type FieldDatas = Record<string, FieldData>
 
 export type FieldComponents = Record<string, FieldComponent>
@@ -119,3 +114,5 @@ interface FieldWraperProps {
 }
 
 export type FieldWrapper = (props: FieldWraperProps) => ReactElement | null
+
+export type UnionString<T extends string | number | symbol> = (T & string) | (string & {})

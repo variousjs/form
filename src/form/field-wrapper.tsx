@@ -2,11 +2,15 @@ import React from 'react'
 import { FieldWrapper } from './type'
 
 const Wrapper: FieldWrapper =  (props) => {
-  const { fieldProps, connector, componentNode } = props
+  const {
+    fieldProps,
+    connector,
+    componentNode,
+    layoutNode: L,
+  } = props
   const { name } = fieldProps
   const store = connector.store.useStore(name)
   const field = store[name]
-  const L = props.layoutNode
 
   if (!field) {
     return null

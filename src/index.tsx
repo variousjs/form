@@ -4,27 +4,26 @@ import Form, { Field, Connector, FieldData, Validator, FieldComponent } from './
 import { Input, Radio, Select, Title, Layout } from './renderers'
 import { notEmpty, promiseCheck, not } from './validators'
 
-const fields: Record<string, FieldData> = {
+const fields = {
   nickname: {
     title: 'Nickname',
     component: 'input',
     componentProps: {
       placeholder: 'Input Name',
     },
-    name: 'nickname',
     required: true,
     validator: 'promiseCheck',
   },
   option: {
     title: 'Option',
-    component: 'radio',
+    component: 'select',
     componentProps: {
       options: [
         { label: 'YES', value: 'yes' },
         { label: 'NO', value: 'no' },
       ],
+      extra: '!!!',
     },
-    name: 'option',
     validator: 'empty',
     required: true,
   },
@@ -37,7 +36,6 @@ const fields: Record<string, FieldData> = {
         { label: 'Don\'t', value: 'donot' },
       ],
     },
-    name: 'radio',
     validator: 'not',
   },
   select: {
@@ -45,9 +43,7 @@ const fields: Record<string, FieldData> = {
     component: 'select',
     loading: true,
     componentProps: {
-      placeholder: 'select',
     },
-    name: 'select',
   },
 }
 const renderers = {
@@ -69,23 +65,28 @@ const Entry = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      connector.setField('select', {
-        componentProps: {
-          options: [
-            { label: 'YES', value: 'yes' },
-            { label: 'NO', value: 'no' },
-          ],
-        },
+      connector.setFieldComponentProps('option', {
+        options: [
+          { label: 'YESS', value: 'yes' },
+          { label: 'NON', value: 'no' },
+        ],
+        extra: <div>???</div>,
+      })
+
+      connector.setField('option', {
         loading: false,
       })
 
       connector.addField('add', {
-        name: 'add',
         component: 'input',
         componentProps: {
           placeholder: 'add',
         },
         title: 'Add',
+      })
+
+      setTimeout(() => {
+        console.log(connector.getField('add'))
       })
     }, 3000)
   }, [])
@@ -136,7 +137,7 @@ const Entry = () => {
           // connector.setField('option', { title: '___' })
           setLoading(true)
           try {
-            const res = await connector.submit()
+            const res = await connector.validateFields()
             console.log(res)
           } catch (e) {
             console.error(e)
@@ -151,6 +152,6 @@ const Entry = () => {
   )
 }
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <Entry />,
-)
+const root =  ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+
+root.render(<Entry />)
