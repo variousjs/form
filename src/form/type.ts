@@ -101,9 +101,15 @@ export interface State {
 
 export type Validators = Record<string, Validator>
 
-export interface FieldValue {
-  key: string,
+export interface FieldValue<T extends string> {
+  name: T,
   value: FieldData['value'],
+  field: FieldData,
+}
+
+export interface CheckField {
+  field: FieldData,
+  name: string,
 }
 
 interface FieldWraperProps {

@@ -8,6 +8,7 @@ import {
   Validators,
   FieldValue,
   UnionString,
+  CheckField,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
@@ -87,39 +88,54 @@ export default class<T extends FieldDatas = {}> {
 
   private async check(name?: UnionString<keyof T>) {
     const state = this.store.getStore()
-    const result: FieldValue[] = []
-    const keys = (name ? [name] : Object.keys(state))
-    const needChecks: { field: FieldData, key: string }[] = []
+    const result: FieldValue<UnionString<keyof T>>[] = []
+    const keys = name ? [name] : Object.keys(state) as UnionString<keyof T>[]
+    const needChecks: CheckField[] = []
 
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i]
       const item: FieldData = state[key]
+
       if (item.disabled) {
         continue
       }
 
-      result.push({ key, value: item.value })
+      result.push({ name: key, value: item.value, field: item })
 
       if (!item.validator || !this.validators[item.validator]) {
-        continue
+        if (!item.required) {
+          continue
+        }
       }
 
-      needChecks.push({ key, field: item })
+      needChecks.push({ name: key, field: item })
 
       this.store.emit({ [key]: { ...item, validating: true } })
     }
 
     const checkResults = await Promise.all(needChecks.map(async (item) => {
-      const { key, field } = item
-      const error = await this.validators[field.validator!](field.value, field)
-
+      const { name, field } = item
       const next: FieldData = { ...field, validating: false }
-      if (error) {
+
+      let error: FieldData['error']
+
+      if (field.loading) {
+        error = 'field loading'
         next.error = error
+      } else {
+        const validator = field.validator
+          ? this.validators[field.validator]
+          : () => field.value === undefined ? 'field required' : undefined
+
+        error = await validator(field.value, field)
+
+        if (error) {
+          next.error = error
+        }
       }
 
-      this.store.emit({ [key]: next }, true)
-      return { key, error }
+      this.store.emit({ [name]: next }, true)
+      return { name, error, field }
     }))
 
     const errors = checkResults.filter((item) => item.error)

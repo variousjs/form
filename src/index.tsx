@@ -39,9 +39,10 @@ const fields = {
     validator: 'not',
   },
   select: {
+    required: true,
     title: 'Select',
     component: 'select',
-    loading: true,
+    loading: false,
     componentProps: {
     },
   },
@@ -73,10 +74,6 @@ const Entry = () => {
         extra: <div>???</div>,
       })
 
-      connector.setField('option', {
-        loading: false,
-      })
-
       connector.addField('add', {
         component: 'input',
         componentProps: {
@@ -105,6 +102,7 @@ const Entry = () => {
         </div>
         <div className="field">
           <Field
+            title={() => null}
             name="option"
           />
         </div>
@@ -140,7 +138,7 @@ const Entry = () => {
             const res = await connector.validateFields()
             console.log(res)
           } catch (e) {
-            console.error(e)
+            console.warn(e)
           } finally {
             setLoading(false)
           }
