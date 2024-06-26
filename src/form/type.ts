@@ -36,6 +36,9 @@ export interface FieldData<P extends object = {}> {
   /** field validator name */
   validator?: string,
 
+  /** field validate interval, default 0(ms) */
+  validateInterval?: number,
+
   /** field title */
   title?: string | string[],
 
@@ -105,11 +108,6 @@ export interface FieldValue<T extends string> {
   name: T,
   value: FieldData['value'],
   field: FieldData,
-}
-
-export interface CheckField {
-  field: FieldData,
-  name: string,
 }
 
 interface FieldWraperProps {

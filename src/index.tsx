@@ -13,7 +13,8 @@ const fields = {
     },
     required: true,
     validator: 'promiseCheck',
-  },
+    validateInterval: 300,
+  } as FieldData,
   option: {
     title: 'Option',
     component: 'select',
@@ -99,6 +100,7 @@ const Entry = () => {
             title={Title}
             name="nickname"
           />
+          <button onClick={() => console.log(connector.getField('nickname'))}>get</button>
         </div>
         <div className="field">
           <Field

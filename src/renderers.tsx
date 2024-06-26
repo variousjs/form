@@ -6,7 +6,7 @@ export const Input: FieldComponent<{ placeholder: string }> = (props) => {
     <input
       placeholder={props.componentProps?.placeholder}
       className={props.error ? 'is-error' : ''}
-      value={props.value as string}
+      value={props.value as string || ''}
       onInput={(e) => {
         props.onChange(e.currentTarget.value)
       }}

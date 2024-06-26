@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { INITIALIZED } from './connector'
+import { debounce } from './helper'
 import { FieldData, FieldProps } from './type'
 
 function F(props: FieldProps) {
@@ -25,11 +26,16 @@ function F(props: FieldProps) {
     return null
   }
 
+  const onValidate = useMemo(() => debounce(
+    connector.validateField.bind(connector)
+  , field.validateInterval || 0), [])
+
   const onValueChange = async (value: FieldData['value']) => {
     const item: FieldData = connector.store.getStore(name)
     const { error, ...rest } = item
     const next = { ...rest, value }
     connector.store.emit({ [name]: next }, true)
+    onValidate(name)
   }
 
   return (

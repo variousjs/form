@@ -11,7 +11,7 @@ export const not = (v?: string) => {
 }
 
 export const promiseCheck = async (v?: string) => {
-  await new Promise((r) => setTimeout(r, 300))
+  await new Promise((r) => setTimeout(r, 1000))
   if ((v?.length || 0) % 2 === 1) {
     return 'async error'
   }

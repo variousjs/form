@@ -8,7 +8,6 @@ import {
   Validators,
   FieldValue,
   UnionString,
-  CheckField,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
@@ -90,7 +89,7 @@ export default class<T extends FieldDatas = {}> {
     const state = this.store.getStore()
     const result: FieldValue<UnionString<keyof T>>[] = []
     const keys = name ? [name] : Object.keys(state) as UnionString<keyof T>[]
-    const needChecks: CheckField[] = []
+    const needChecks: { name: string }[] = []
 
     for (let i = 0; i < keys.length; i += 1) {
       const key = keys[i]
@@ -108,14 +107,23 @@ export default class<T extends FieldDatas = {}> {
         }
       }
 
-      needChecks.push({ name: key, field: item })
+      needChecks.push({ name: key })
 
-      this.store.emit({ [key]: { ...item, validating: true } })
+      this.store.emit({
+        [key]: {
+          ...item,
+          validating: true
+        },
+      })
     }
 
     const checkResults = await Promise.all(needChecks.map(async (item) => {
-      const { name, field } = item
-      const next: FieldData = { ...field, validating: false }
+      const { name } = item
+      const field = this.store.getStore(name)
+      const next: FieldData = {
+        ...field,
+        validating: false,
+      }
 
       let error: FieldData['error']
 
@@ -134,11 +142,24 @@ export default class<T extends FieldDatas = {}> {
         }
       }
 
-      this.store.emit({ [name]: next }, true)
+      if (!name) {
+        this.store.emit({ [name]: next })
+      }
+
       return { name, error, field }
     }))
 
     const errors = checkResults.filter((item) => item.error)
+
+    if (name) {
+      this.store.emit({
+        [name]: {
+          ...state[name],
+          validating: false,
+          error: errors[0]?.error,
+        },
+      })
+    }
 
     if (errors.length) {
       throw errors
