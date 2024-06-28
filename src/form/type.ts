@@ -48,7 +48,7 @@ export interface FieldData<P extends object = {}> {
   /** field readOnly status */
   readOnly?: boolean,
 
-  /** field has been modified */
+  /** field has been modified by user */
   modified?: boolean,
 }
 
@@ -71,6 +71,8 @@ export interface FieldProps {
   error?: ErrorNode
   name: string,
   connector?: Connector,
+  readonly?: boolean,
+  disabled?: boolean,
 }
 
 export type FieldNode = (props: FieldProps) => ReactNode
@@ -86,10 +88,19 @@ export type LayoutNode = (props: LayoutProps) => ReactElement
 
 export interface FormProps {
   readOnly?: boolean,
+  disabled?: boolean,
   connector: Connector,
   children: ReactNode,
   fieldLayout: (props: LayoutProps) => ReactElement,
 }
+
+export interface FieldChageCallback {
+  (newField: FieldData, oldField: FieldData): void,
+  __once?: boolean,
+  __triggered?: boolean,
+}
+
+export type FieldChageProperty = keyof Omit<FieldData, 'componentProps'> | '*'
 
 // Internal
 

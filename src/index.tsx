@@ -14,6 +14,7 @@ const fields = {
     required: true,
     validator: 'promiseCheck',
     validateInterval: 300,
+    // readOnly: true,
   } as FieldData,
   option: {
     title: 'Option',
@@ -62,6 +63,18 @@ const validators = {
 
 const connector = new Connector(fields, { components: renderers, validators })
 
+connector.onFieldChange('nickname', ['description', 'value'], (a, b) => {
+  console.log(a, b)
+})
+
+connector.onceFieldChange('nickname', ['*', 'value'], (c, d) => {
+  console.log(c, d)
+})
+
+connector.onFieldChange('select', ['*'], (a, b) => {
+  console.log(a, b)
+})
+
 const Entry = () => {
   const [loading, setLoading] = useState(false)
 
@@ -82,10 +95,6 @@ const Entry = () => {
         },
         title: 'Add',
       })
-
-      setTimeout(() => {
-        console.log(connector.getField('add'))
-      })
     }, 3000)
   }, [])
 
@@ -94,13 +103,16 @@ const Entry = () => {
       <Form
         connector={connector}
         fieldLayout={Layout}
+        // disabled
       >
         <div className="field">
           <Field
             title={Title}
             name="nickname"
           />
-          <button onClick={() => console.log(connector.getField('nickname'))}>get</button>
+          <button onClick={() => {
+            connector.setField('nickname', { value: '!!!!' })
+          }}>set</button>
         </div>
         <div className="field">
           <Field

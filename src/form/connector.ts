@@ -8,11 +8,17 @@ import {
   Validators,
   FieldValue,
   UnionString,
+  FieldChageCallback,
+  FieldChageProperty,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
 export default class<T extends FieldDatas = {}> {
+  private fieldChangeSubscribers: Record<
+    string, Record<FieldChageProperty, FieldChageCallback[]>
+  >
+
   public store: N<State>
   public renderers: FieldComponents
   public validators: Validators
@@ -21,6 +27,7 @@ export default class<T extends FieldDatas = {}> {
     fields: T,
     config: { components: FieldComponents, validators: Validators },
   ) {
+    this.fieldChangeSubscribers = {}
     this.store = new Nycticorax<State>()
     this.renderers = config.components || {}
     this.validators = config.validators || {}
@@ -29,6 +36,35 @@ export default class<T extends FieldDatas = {}> {
 
   private init(fields: FieldDatas) {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
+  }
+
+  private onFieldChangeActual(
+    name: UnionString<keyof T>,
+    properties: FieldChageProperty[],
+    callback: FieldChageCallback,
+    once?: boolean,
+  ) {
+    if (once) {
+      callback.__once = true
+    }
+    const actualProperties: FieldChageProperty[] = properties.includes('*') ? ['*'] : properties
+
+    actualProperties.forEach((property) => {
+      this.fieldChangeSubscribers[name] = {
+        ...this.fieldChangeSubscribers[name],
+        [property]: [...(this.fieldChangeSubscribers[name]?.[property] || []), callback],
+      }
+    })
+  }
+
+  public onFieldChange = this.onFieldChangeActual
+
+  public onceFieldChange(
+    name: UnionString<keyof T>,
+    properties: FieldChageProperty[],
+    callback: FieldChageCallback,
+  ) {
+    this.onFieldChangeActual(name, properties, callback, true)
   }
 
   public getField(name: UnionString<keyof T>) {
@@ -49,11 +85,28 @@ export default class<T extends FieldDatas = {}> {
 
   public setField(name: UnionString<keyof T>, data: Omit<FieldData, 'componentProps'>) {
     const current = this.getField(name)
-    this.store.emit({ [name]: { ...current, ...data } }, true)
+    // @ts-ignore
+    const { componentProps, ...rest } = data
+    const next = { ...current, ...rest }
+
+    this.store.emit({ [name]: next }, true)
 
     if ('value' in data) {
-      this.check(name).catch(() => { /* ignore */ })
+      this.check(name).catch(() => null)
     }
+
+    Object.keys(data).forEach((property) => {
+      this.fieldChangeSubscribers[name]
+        ?.[property as FieldChageProperty]
+        ?.concat(this.fieldChangeSubscribers[name]?.['*'])
+        ?.forEach((callback) => {
+          if (callback.__once && callback.__triggered) {
+            return
+          }
+          callback(next, current)
+          callback.__triggered = true
+        })
+    })
   }
 
   public setFieldComponentProps<P extends object = {}>(
