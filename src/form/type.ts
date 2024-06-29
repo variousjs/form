@@ -94,13 +94,14 @@ export interface FormProps {
   fieldLayout: (props: LayoutProps) => ReactElement,
 }
 
+export type FieldChageProperty = keyof Omit<FieldData, 'componentProps'> | '*'
+
 export interface FieldChageCallback {
   (newField: FieldData, oldField: FieldData): void,
   __once?: boolean,
   __triggered?: boolean,
+  __properties?: FieldChageProperty[],
 }
-
-export type FieldChageProperty = keyof Omit<FieldData, 'componentProps'> | '*'
 
 // Internal
 

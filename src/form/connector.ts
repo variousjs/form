@@ -15,9 +15,7 @@ import {
 export const INITIALIZED = Symbol('INITIALIZED')
 
 export default class<T extends FieldDatas = {}> {
-  private fieldChangeSubscribers: Record<
-    string, Record<FieldChageProperty, FieldChageCallback[]>
-  >
+  private fieldChangeSubscribers: Record<string, FieldChageCallback[]>
 
   public store: N<State>
   public renderers: FieldComponents
@@ -49,12 +47,12 @@ export default class<T extends FieldDatas = {}> {
     }
     const actualProperties: FieldChageProperty[] = properties.includes('*') ? ['*'] : properties
 
-    actualProperties.forEach((property) => {
-      this.fieldChangeSubscribers[name] = {
-        ...this.fieldChangeSubscribers[name],
-        [property]: [...(this.fieldChangeSubscribers[name]?.[property] || []), callback],
-      }
-    })
+    callback.__properties = actualProperties
+
+    this.fieldChangeSubscribers[name] = [
+      ...this.fieldChangeSubscribers[name] || [],
+      callback,
+    ]
   }
 
   public onFieldChange = this.onFieldChangeActual
@@ -95,17 +93,17 @@ export default class<T extends FieldDatas = {}> {
       this.check(name).catch(() => null)
     }
 
-    Object.keys(data).forEach((property) => {
-      this.fieldChangeSubscribers[name]
-        ?.[property as FieldChageProperty]
-        ?.concat(this.fieldChangeSubscribers[name]?.['*'])
-        ?.forEach((callback) => {
-          if (callback.__once && callback.__triggered) {
-            return
-          }
-          callback(next, current)
-          callback.__triggered = true
-        })
+    const activeProperties = Object.keys(data)
+
+    this.fieldChangeSubscribers[name]?.forEach((callback) => {
+      const { __once, __properties, __triggered } = callback
+      if (__once && __triggered) {
+        return
+      }
+      if (__properties?.[0] === '*' || __properties?.find((p) => activeProperties.includes(p))) {
+        callback(next, current)
+        callback.__triggered = true
+      }
     })
   }
 
