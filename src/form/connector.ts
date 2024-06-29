@@ -10,12 +10,15 @@ import {
   UnionString,
   FieldChageCallback,
   FieldChageProperty,
+  ComponentPropsChageCallback,
+  ObjectAny,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
 export default class<T extends FieldDatas = {}> {
   private fieldChangeSubscribers: Record<string, FieldChageCallback[]>
+  private componentPropsChangeSubscribers: Record<string, ComponentPropsChageCallback<any>[]>
 
   public store: N<State>
   public renderers: FieldComponents
@@ -26,6 +29,7 @@ export default class<T extends FieldDatas = {}> {
     config: { components: FieldComponents, validators: Validators },
   ) {
     this.fieldChangeSubscribers = {}
+    this.componentPropsChangeSubscribers = {}
     this.store = new Nycticorax<State>()
     this.renderers = config.components || {}
     this.validators = config.validators || {}
@@ -34,6 +38,25 @@ export default class<T extends FieldDatas = {}> {
 
   private init(fields: FieldDatas) {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
+  }
+
+  private onFieldComponentChangeActual<P extends object = ObjectAny>(
+    name: UnionString<keyof T>,
+    properties: UnionString<'*' | keyof P>[],
+    callback: ComponentPropsChageCallback<P>,
+    once?: boolean,
+  ) {
+    if (once) {
+      callback.__once = true
+    }
+    const actualProperties: string[] = properties.includes('*') ? ['*'] : properties
+
+    callback.__properties = actualProperties
+
+    this.componentPropsChangeSubscribers[name] = [
+      ...this.componentPropsChangeSubscribers[name] || [],
+      callback,
+    ]
   }
 
   private onFieldChangeActual(
@@ -57,12 +80,22 @@ export default class<T extends FieldDatas = {}> {
 
   public onFieldChange = this.onFieldChangeActual
 
+  public onFieldComponentChange = this.onFieldComponentChangeActual
+
   public onceFieldChange(
     name: UnionString<keyof T>,
     properties: FieldChageProperty[],
     callback: FieldChageCallback,
   ) {
     this.onFieldChangeActual(name, properties, callback, true)
+  }
+
+  public onceFieldComponentChange<P extends object = ObjectAny>(
+    name: UnionString<keyof T>,
+    properties: UnionString<'*' | keyof P>[],
+    callback: ComponentPropsChageCallback<P>,
+  ) {
+    this.onFieldComponentChangeActual<P>(name, properties, callback, true)
   }
 
   public getField(name: UnionString<keyof T>) {
@@ -107,17 +140,33 @@ export default class<T extends FieldDatas = {}> {
     })
   }
 
-  public setFieldComponentProps<P extends object = {}>(
+  public setFieldComponentProps<P extends object = ObjectAny>(
     name: UnionString<keyof T>,
-    data: FieldData<P>['componentProps'],
+    data: Partial<FieldData<P>['componentProps']>,
     replace?: boolean,
   ) {
     const current = this.getField(name)
+    const currentProps = current.componentProps
+    const nextProps: ObjectAny | undefined = replace ? data : { ...currentProps, ...data }
+
     this.store.emit({
       [name]: {
         ...current,
-        componentProps: replace ? data : { ...current.componentProps, ...data },
+        componentProps: nextProps,
       },
+    })
+
+    const activeProperties = Object.keys(data || {})
+
+    this.componentPropsChangeSubscribers[name]?.forEach((callback) => {
+      const { __once, __properties, __triggered } = callback
+      if (__once && __triggered) {
+        return
+      }
+      if (__properties?.[0] === '*' || __properties?.find((p) => activeProperties.includes(p))) {
+        callback(nextProps, currentProps)
+        callback.__triggered = true
+      }
     })
   }
 

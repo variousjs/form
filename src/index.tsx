@@ -64,7 +64,18 @@ const validators = {
 const connector = new Connector(fields, { components: renderers, validators })
 
 connector.onFieldChange('nickname', ['description', 'value'], (a, b) => {
-  connector.setField('nickname', { value: '!!!!' })
+  // connector.setField('nickname', { value: '!!!!' })
+})
+
+connector.onFieldComponentChange<{ placeholder: string }>('nickname', ['placeholder'], (n, o) => {
+  console.log(n, o)
+})
+connector.onceFieldComponentChange<{ placeholder: string }>('nickname', ['*'], (n1, o1) => {
+  console.log(n1, o1)
+})
+
+connector.onFieldComponentChange('nickname', ['*1'], () => {
+
 })
 
 connector.onceFieldChange('nickname', ['*', 'value'], (c, d) => {
@@ -111,7 +122,7 @@ const Entry = () => {
             name="nickname"
           />
           <button onClick={() => {
-            connector.setField('nickname', { value: '!!!!', description: '???' })
+            connector.setFieldComponentProps<{ placeholder: string, a: number }>('nickname', { a: 12 })
           }}>set</button>
         </div>
         <div className="field">

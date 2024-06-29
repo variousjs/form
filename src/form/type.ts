@@ -4,8 +4,9 @@ import type Connector from './connector'
 
 type Primitive = boolean | number | string
 type PlainObject = Record<string, Primitive | Primitive[]>
+export type ObjectAny = Record<string, any>
 
-export interface FieldData<P extends object = {}> {
+export interface FieldData<P extends object = ObjectAny> {
   /** field rendering component */
   component?: string,
 
@@ -101,6 +102,13 @@ export interface FieldChageCallback {
   __once?: boolean,
   __triggered?: boolean,
   __properties?: FieldChageProperty[],
+}
+
+export interface ComponentPropsChageCallback<P extends object = ObjectAny> {
+  (newProps?: P, oldProps?: P): void,
+  __once?: boolean,
+  __triggered?: boolean,
+  __properties?: string[],
 }
 
 // Internal
