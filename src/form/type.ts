@@ -98,14 +98,14 @@ export interface FormProps {
 export type FieldChageProperty = keyof Omit<FieldData, 'componentProps'> | '*'
 
 export interface FieldChageCallback {
-  (newField: FieldData, oldField: FieldData): void,
+  (newField: FieldData, oldField: FieldData, changeKeys: (keyof Omit<FieldData, 'componentProps'>)[]): void,
   __once?: boolean,
   __triggered?: boolean,
   __properties?: FieldChageProperty[],
 }
 
 export interface ComponentPropsChageCallback<P extends object = ObjectAny> {
-  (newProps?: P, oldProps?: P): void,
+  (newProps: P | undefined, oldProps: P | undefined, changeKeys: string[]): void,
   __once?: boolean,
   __triggered?: boolean,
   __properties?: string[],

@@ -1,4 +1,5 @@
 import Nycticorax from 'nycticorax'
+import eq from 'fast-deep-equal'
 import type N from 'nycticorax'
 import {
   FieldData,
@@ -126,7 +127,7 @@ export default class<T extends FieldDatas = {}> {
         return
       }
       if (__properties?.[0] === '*' || __properties?.find((p) => activeProperties.includes(p))) {
-        callback(next, current)
+        callback(next, current, activeProperties as any)
         callback.__triggered = true
       }
     })
@@ -138,14 +139,19 @@ export default class<T extends FieldDatas = {}> {
     const { componentProps, ...rest } = data
     const next = { ...current, ...rest }
 
+    if (eq(next, current)) {
+      console.warn('triggering same properties')
+      return
+    }
+
     this.store.emit({ [name]: next }, true)
+
+    const activeProperties = Object.keys(data)
+    this.triggerSubscribers(name, activeProperties, next, current)
 
     if ('value' in data) {
       this.check(name).catch(() => null)
     }
-
-    const activeProperties = Object.keys(data)
-    this.triggerSubscribers(name, activeProperties, next, current)
   }
 
   public setFieldComponentProps<P extends object = ObjectAny>(
@@ -156,6 +162,11 @@ export default class<T extends FieldDatas = {}> {
     const current = this.getField(name)
     const currentProps = current.componentProps
     const nextProps: ObjectAny | undefined = replace ? data : { ...currentProps, ...data }
+
+    if (eq(nextProps, currentProps)) {
+      console.warn('triggering same properties')
+      return
+    }
 
     this.store.emit({
       [name]: {
@@ -172,7 +183,7 @@ export default class<T extends FieldDatas = {}> {
         return
       }
       if (__properties?.[0] === '*' || __properties?.find((p) => activeProperties.includes(p))) {
-        callback(nextProps, currentProps)
+        callback(nextProps, currentProps, activeProperties)
         callback.__triggered = true
       }
     })
@@ -259,7 +270,7 @@ export default class<T extends FieldDatas = {}> {
 
       this.triggerSubscribers(
         item.name,
-        ['validating', current.error === next.error ? 'error' : ''].filter(Boolean),
+        ['validating', current.error === next.error ? '' : 'error'].filter(Boolean),
         next,
         current,
       )
