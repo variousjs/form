@@ -68,22 +68,22 @@ connector.onFieldChange('nickname', ['description', 'value'], (a, b) => {
 })
 
 connector.onFieldComponentChange<{ placeholder: string }>('nickname', ['placeholder'], (n, o) => {
-  console.log(n, o)
+  // console.log(n, o)
 })
 connector.onceFieldComponentChange<{ placeholder: string }>('nickname', ['*'], (n1, o1) => {
-  console.log(n1, o1)
+  // console.log(n1, o1)
 })
 
 connector.onFieldComponentChange('nickname', ['*1'], () => {
 
 })
 
-connector.onceFieldChange('nickname', ['*', 'value'], (c, d) => {
+connector.onFieldChange('nickname', ['*', 'value'], (c, d) => {
   console.log(c, d)
 })
 
 connector.onFieldChange('select', ['*'], (a, b) => {
-  console.log(a, b)
+  // console.log(a, b)
 })
 
 const Entry = () => {
@@ -122,8 +122,9 @@ const Entry = () => {
             name="nickname"
           />
           <button onClick={() => {
-            connector.setFieldComponentProps<{ placeholder: string, a: number }>('nickname', { a: 12 })
-          }}>set</button>
+            // connector.setFieldComponentProps<{ placeholder: string, a: number }>('nickname', { a: 12 })
+            console.log(connector.getField('nickname'))
+          }}>get</button>
         </div>
         <div className="field">
           <Field

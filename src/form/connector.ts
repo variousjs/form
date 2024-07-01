@@ -114,6 +114,24 @@ export default class<T extends FieldDatas = {}> {
     }), {} as FieldDatas)
   }
 
+  public triggerSubscribers(
+    name: UnionString<keyof T>,
+    activeProperties: string[],
+    next: ReturnType<typeof this.getField>,
+    current: ReturnType<typeof this.getField>,
+  ) {
+    this.fieldChangeSubscribers[name]?.forEach((callback) => {
+      const { __once, __properties, __triggered } = callback
+      if (__once && __triggered) {
+        return
+      }
+      if (__properties?.[0] === '*' || __properties?.find((p) => activeProperties.includes(p))) {
+        callback(next, current)
+        callback.__triggered = true
+      }
+    })
+  }
+
   public setField(name: UnionString<keyof T>, data: Omit<FieldData, 'componentProps'>) {
     const current = this.getField(name)
     // @ts-ignore
@@ -127,17 +145,7 @@ export default class<T extends FieldDatas = {}> {
     }
 
     const activeProperties = Object.keys(data)
-
-    this.fieldChangeSubscribers[name]?.forEach((callback) => {
-      const { __once, __properties, __triggered } = callback
-      if (__once && __triggered) {
-        return
-      }
-      if (__properties?.[0] === '*' || __properties?.find((p) => activeProperties.includes(p))) {
-        callback(next, current)
-        callback.__triggered = true
-      }
-    })
+    this.triggerSubscribers(name, activeProperties, next, current)
   }
 
   public setFieldComponentProps<P extends object = ObjectAny>(
@@ -215,51 +223,49 @@ export default class<T extends FieldDatas = {}> {
           validating: true
         },
       })
+
+      this.triggerSubscribers(
+        key,
+        ['validating'],
+        { ...item, validating: true },
+        item,
+      )
     }
 
     const checkResults = await Promise.all(needChecks.map(async (item) => {
       const { name } = item
-      const field = this.store.getStore(name)
-      const next: FieldData = {
-        ...field,
-        validating: false,
-      }
+      const field = state[name]
 
       let error: FieldData['error']
 
       if (field.loading) {
         error = 'field loading'
-        next.error = error
       } else {
         const validator = field.validator
           ? this.validators[field.validator]
           : () => field.value === undefined ? 'field required' : undefined
 
         error = await validator(field.value, field)
-
-        if (error) {
-          next.error = error
-        }
-      }
-
-      if (!name) {
-        this.store.emit({ [name]: next })
       }
 
       return { name, error, field }
     }))
 
-    const errors = checkResults.filter((item) => item.error)
+    checkResults.forEach((item) => {
+      const current = { ...state[item.name] }
+      const next = { ...current, validating: false, error: item.error }
 
-    if (name) {
-      this.store.emit({
-        [name]: {
-          ...state[name],
-          validating: false,
-          error: errors[0]?.error,
-        },
-      })
-    }
+      this.store.emit({ [item.name]: next })
+
+      this.triggerSubscribers(
+        item.name,
+        ['validating', current.error === next.error ? 'error' : ''].filter(Boolean),
+        next,
+        current,
+      )
+    })
+
+    const errors = checkResults.filter((item) => item.error)
 
     if (errors.length) {
       throw errors

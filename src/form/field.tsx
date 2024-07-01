@@ -40,6 +40,12 @@ function F(props: FieldProps) {
 
     if (!item.readOnly && !item.disabled) {
       connector.store.emit({ [name]: next }, true)
+      connector.triggerSubscribers(
+        name,
+        ['value', error ? 'error' : '', rest.modified ? '' : 'modified'].filter(Boolean),
+        next,
+        item,
+      )
       onValidate(name)
     }
   }
