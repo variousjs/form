@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { FieldComponent, LayoutNode, TitleNode } from './form'
+import { FieldComponent, LayoutComponent, TitleComponent } from './form'
 
 export const Input: FieldComponent<{ placeholder: string }> = (props) => {
   return (
@@ -73,7 +73,7 @@ export const Select: FieldComponent<{
   )
 }
 
-export const Title: TitleNode = (props) => {
+export const Title: TitleComponent = (props) => {
   return (
     <p className="title">
       {props.title}
@@ -82,7 +82,7 @@ export const Title: TitleNode = (props) => {
   )
 }
 
-export const Layout: LayoutNode = (props) => {
+export const Layout: LayoutComponent = (props) => {
   const titleNode = props.titleNode || (<p className="title">{props.field.title}</p>)
   const errorNode = props.errorNode || (<p className="is-error">{props.field.error}</p>)
 
@@ -97,7 +97,7 @@ export const Layout: LayoutNode = (props) => {
   )
 }
 
-export const FieldLayout: LayoutNode = (props) => {
+export const FieldLayout: LayoutComponent = (props) => {
   const titleNode = <p className="title">{props.field.title}</p>
   const errorNode = <p className="is-error">{props.field.error}</p>
 

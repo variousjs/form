@@ -117,7 +117,7 @@ const Entry = () => {
         // disabled
       >
         <div className="field">
-          <Field
+          <Field<typeof fields>
             title={Title}
             name="nickname"
           />

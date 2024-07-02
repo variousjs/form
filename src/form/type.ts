@@ -5,6 +5,7 @@ import type Connector from './connector'
 type Primitive = boolean | number | string
 type PlainObject = Record<string, Primitive | Primitive[]>
 export type ObjectAny = Record<string, any>
+export type UnionString<T extends string | number | symbol> = (T & string) | (string & {})
 
 export interface FieldData<P extends object = ObjectAny> {
   /** field rendering component */
@@ -53,37 +54,37 @@ export interface FieldData<P extends object = ObjectAny> {
   modified?: boolean,
 }
 
-export interface FieldComponentProps<P extends object = {}> extends FieldData<P> {
+export interface FieldComponentProps<P extends object = ObjectAny> extends FieldData<P> {
   onChange: (v: FieldData['value']) => void,
 }
 
-export type FieldComponent<P extends object = {}> = ComponentType<FieldComponentProps<P>>
+export type FieldComponent<P extends object = ObjectAny> = ComponentType<FieldComponentProps<P>>
 
 export type Validator = (
   value: FieldData['value'],
   field: FieldData,
 ) => FieldData['error'] | Promise<FieldData['error']>
 
-export type TitleNode = (field: FieldData) => ReactNode
-export type ErrorNode = (field: FieldData) => ReactNode
+export type TitleComponent = (field: FieldData) => ReactNode
+export type ErrorComponent = (field: FieldData) => ReactNode
 
-export interface LayoutProps {
+export interface LayoutComponentProps {
   componentNode: ReactNode,
   field: FieldData,
   titleNode?: ReactNode,
   errorNode?: ReactNode,
 }
 
-export type LayoutNode = (props: LayoutProps) => ReactElement
+export type LayoutComponent = (props: LayoutComponentProps) => ReactElement
 
-export interface FieldProps {
-  title?: TitleNode
-  error?: ErrorNode
-  name: string,
+export interface FieldProps<K extends Record<string, FieldData> = ObjectAny> {
+  title?: TitleComponent
+  error?: ErrorComponent
+  name: UnionString<keyof K>,
   connector?: Connector,
   readonly?: boolean,
   disabled?: boolean,
-  layout?: LayoutNode,
+  layout?: LayoutComponent,
 }
 
 export interface FormProps {
@@ -91,7 +92,7 @@ export interface FormProps {
   disabled?: boolean,
   connector: Connector,
   children: ReactNode,
-  fieldLayout: LayoutNode,
+  fieldLayout: LayoutComponent,
 }
 
 export type FieldChageProperty = keyof Omit<FieldData, 'componentProps'> | '*'
@@ -133,9 +134,7 @@ interface FieldWraperProps {
   connector: Connector,
   fieldProps: Omit<FieldProps, 'connector'>,
   componentNode: ReactNode,
-  layoutNode: LayoutNode,
+  layoutNode: LayoutComponent,
 }
 
 export type FieldWrapper = (props: FieldWraperProps) => ReactElement | null
-
-export type UnionString<T extends string | number | symbol> = (T & string) | (string & {})

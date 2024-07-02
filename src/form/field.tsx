@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { INITIALIZED } from './connector'
 import { debounce } from './helper'
-import { FieldData, FieldProps } from './type'
+import { FieldData, FieldProps, ObjectAny } from './type'
 
-function F(props: FieldProps) {
+function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>) {
   const {
     connector,
     name,

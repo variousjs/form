@@ -13,14 +13,17 @@ export { default as Connector } from './connector'
 export type {
   FieldComponentProps,
   FieldComponent,
-  TitleNode,
-  ErrorNode,
+  TitleComponent,
+  ErrorComponent,
+  LayoutComponentProps,
+  LayoutComponent,
   FieldProps,
+  FormProps,
+  FieldChageProperty,
+  FieldChageCallback,
+  ComponentPropsChageCallback,
   Validator,
   FieldData,
-  LayoutProps,
-  LayoutNode,
-  FormProps,
 } from './type'
 
 const setProps = (props: FormProps): ReactNode => {
