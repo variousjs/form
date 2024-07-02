@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import Form, { Field, Connector, FieldData, Validator, FieldComponent } from './form'
-import { Input, Radio, Select, Title, Layout } from './renderers'
+import { Input, Radio, Select, Title, Layout, FieldLayout } from './renderers'
 import { notEmpty, promiseCheck, not } from './validators'
 
 const fields = {
@@ -135,6 +135,7 @@ const Entry = () => {
         <div className="field">
           <Field
             name="radio"
+            layout={FieldLayout}
           />
         </div>
         <div className="field">

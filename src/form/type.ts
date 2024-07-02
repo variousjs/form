@@ -67,17 +67,6 @@ export type Validator = (
 export type TitleNode = (field: FieldData) => ReactNode
 export type ErrorNode = (field: FieldData) => ReactNode
 
-export interface FieldProps {
-  title?: TitleNode
-  error?: ErrorNode
-  name: string,
-  connector?: Connector,
-  readonly?: boolean,
-  disabled?: boolean,
-}
-
-export type FieldNode = (props: FieldProps) => ReactNode
-
 export interface LayoutProps {
   componentNode: ReactNode,
   field: FieldData,
@@ -87,12 +76,22 @@ export interface LayoutProps {
 
 export type LayoutNode = (props: LayoutProps) => ReactElement
 
+export interface FieldProps {
+  title?: TitleNode
+  error?: ErrorNode
+  name: string,
+  connector?: Connector,
+  readonly?: boolean,
+  disabled?: boolean,
+  layout?: LayoutNode,
+}
+
 export interface FormProps {
   readOnly?: boolean,
   disabled?: boolean,
   connector: Connector,
   children: ReactNode,
-  fieldLayout: (props: LayoutProps) => ReactElement,
+  fieldLayout: LayoutNode,
 }
 
 export type FieldChageProperty = keyof Omit<FieldData, 'componentProps'> | '*'

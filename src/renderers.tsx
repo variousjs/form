@@ -96,3 +96,18 @@ export const Layout: LayoutNode = (props) => {
     </div>
   )
 }
+
+export const FieldLayout: LayoutNode = (props) => {
+  const titleNode = <p className="title">{props.field.title}</p>
+  const errorNode = <p className="is-error">{props.field.error}</p>
+
+  return (
+    <div
+      style={{ margin: '100px 0' }}
+    >
+      {titleNode}
+      {props.componentNode}
+      {errorNode}
+    </div>
+  )
+}

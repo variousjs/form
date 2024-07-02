@@ -31,11 +31,13 @@ const setProps = (props: FormProps): ReactNode => {
 
     // @ts-ignore
     if (element?.type?.displayName === 'VARIOUS_FIELD') {
+      const { layout, ...rest } = element.props as any
+
       const F = cloneElement(element, {
-        ...element.props as any,
         connector: props.connector,
         disabled: props.disabled,
         readOnly: props.readOnly,
+        ...rest,
       })
 
       return (
@@ -43,7 +45,7 @@ const setProps = (props: FormProps): ReactNode => {
           connector={props.connector}
           fieldProps={element.props as any}
           componentNode={F}
-          layoutNode={props.fieldLayout}
+          layoutNode={layout || props.fieldLayout}
         />
       )
     }
