@@ -13,13 +13,15 @@ import {
   FieldChageProperty,
   ComponentPropsChageCallback,
   ObjectAny,
+  ConnectorChange,
 } from './type'
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
-export default class<T extends FieldDatas = {}> {
+export default class<T extends FieldDatas = ObjectAny> {
   private fieldChangeSubscribers: Record<string, FieldChageCallback[]>
   private componentPropsChangeSubscribers: Record<string, ComponentPropsChageCallback<any>[]>
+  private onStateChange: ConnectorChange<T>
 
   public store: N<State>
   public renderers: FieldComponents
@@ -31,6 +33,7 @@ export default class<T extends FieldDatas = {}> {
   ) {
     this.fieldChangeSubscribers = {}
     this.componentPropsChangeSubscribers = {}
+    this.onStateChange = () => null
     this.store = new Nycticorax<State>()
     this.renderers = config.components || {}
     this.validators = config.validators || {}
@@ -39,6 +42,11 @@ export default class<T extends FieldDatas = {}> {
 
   private init(fields: FieldDatas) {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
+    this.store.onChange = (v) => this.onStateChange(v as any)
+  }
+
+  public set onChange(fn: ConnectorChange<T>) {
+    this.onStateChange = fn
   }
 
   private onFieldComponentChangeActual<P extends object = ObjectAny>(
@@ -107,12 +115,18 @@ export default class<T extends FieldDatas = {}> {
     return field
   }
 
-  public getFields() {
+  public getFields<
+    K extends keyof FieldData | undefined = undefined,
+  >(key?: K): K extends keyof FieldData ? Record<UnionString<keyof T>, FieldData[keyof FieldData]> : FieldDatas<UnionString<keyof T>> {
     const state = this.store.getStore()
     return Object.keys(state).reduce((pre, cur) => ({
       ...pre,
-      [cur]: state[cur],
-    }), {} as FieldDatas)
+      [cur]: key ? state[cur][key] : state[cur],
+    }), {} as any)
+  }
+
+  public getFieldValues() {
+    return this.getFields('value')
   }
 
   public triggerSubscribers(

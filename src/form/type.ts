@@ -51,8 +51,12 @@ export interface FieldData<P extends object = ObjectAny> {
   readOnly?: boolean,
 
   /** field has been modified by user */
-  modified?: boolean,
+  touched?: boolean,
 }
+
+export type ConnectorChange<K extends Record<string, FieldData> = ObjectAny> = (
+  e: Record<UnionString<keyof K>, [FieldData, FieldData]>
+) => void
 
 export interface FieldComponentProps<P extends object = ObjectAny> extends FieldData<P> {
   onChange: (v: FieldData['value']) => void,
@@ -113,7 +117,7 @@ export interface ComponentPropsChageCallback<P extends object = ObjectAny> {
 
 // Internal
 
-export type FieldDatas = Record<string, FieldData>
+export type FieldDatas<K extends string = string> = Record<K, FieldData>
 
 export type FieldComponents = Record<string, FieldComponent>
 

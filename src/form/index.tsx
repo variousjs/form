@@ -24,6 +24,7 @@ export type {
   ComponentPropsChageCallback,
   Validator,
   FieldData,
+  ConnectorChange,
 } from './type'
 
 const setProps = (props: FormProps): ReactNode => {

@@ -36,13 +36,13 @@ function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>
   const onValueChange = async (value: FieldData['value']) => {
     const item: FieldData = connector.store.getStore(name)
     const { error, ...rest } = item
-    const next: FieldData = { ...rest, value, modified: true }
+    const next: FieldData = { ...rest, value, touched: true }
 
     if (!item.readOnly && !item.disabled) {
       connector.store.emit({ [name]: next }, true)
       connector.triggerSubscribers(
         name,
-        ['value', error ? 'error' : '', rest.modified ? '' : 'modified'].filter(Boolean),
+        ['value', error ? 'error' : '', rest.touched ? '' : 'touched'].filter(Boolean),
         next,
         item,
       )

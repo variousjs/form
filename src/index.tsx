@@ -63,6 +63,11 @@ const validators = {
 
 const connector = new Connector(fields, { components: renderers, validators })
 
+connector.onChange = (v) => {
+  const e = connector.getFieldValues()
+  console.log(e)
+}
+
 connector.onFieldChange('nickname', ['description', 'value'], (a, b) => {
   // connector.setField('nickname', { value: '!!!!' })
 })
