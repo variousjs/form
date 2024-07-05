@@ -1,11 +1,16 @@
-import React, { ReactNode } from 'react'
-import { FieldComponent, LayoutComponent, TitleComponent } from './form'
+import React from 'react'
+import { ErrorComponent, FieldComponent, LayoutComponent, TitleComponent } from './form'
 
-export const Input: FieldComponent<{ placeholder: string }> = (props) => {
+export interface Placeholder { placeholder: string }
+export interface Option { label: string, value: string }
+
+export const Input: FieldComponent<Placeholder> = (props) => {
   return (
     <input
+      aria-invalid={props.error ? true : undefined}
+      disabled={props.disabled}
+      readOnly={props.readOnly}
       placeholder={props.componentProps?.placeholder}
-      className={props.error ? 'is-error' : ''}
       value={props.value as string || ''}
       onInput={(e) => {
         props.onChange(e.currentTarget.value)
@@ -14,9 +19,9 @@ export const Input: FieldComponent<{ placeholder: string }> = (props) => {
   )
 }
 
-export const Radio: FieldComponent<{ options: { label: string, value: string }[] }> = (props) => {
+export const Radio: FieldComponent<{ options: Option[], disabled: boolean }> = (props) => {
   return (
-    <div>
+    <fieldset>
       {
         props.componentProps?.options?.map((item) => (
           <label key={item.value}>
@@ -27,87 +32,97 @@ export const Radio: FieldComponent<{ options: { label: string, value: string }[]
               type="radio"
               value={item.value}
               checked={props.value === item.value}
+              disabled={props.componentProps?.disabled}
             />
-            <span>{item.label}</span>
+            {item.label}
           </label>
         ))
       }
-    </div>
+    </fieldset>
   )
 }
 
-export const Select: FieldComponent<{
-  options: { label: string, value: string }[],
-  extra?: ReactNode,
-}> = (props) => {
+export const Select: FieldComponent<{ options: Option[] }> = (props) => {
   if (props.loading) {
     return (
-      <div className="nes-badge">
-        <span className="is-primary">Loading</span>
-      </div>
+      <span aria-busy="true">Please wait...</span>
     )
   }
 
   return (
-    <div>
-      <div>{props.componentProps?.extra}</div>
-      <select
-        onChange={(e) => {
-          props.onChange(e.target.value)
-        }}
-        defaultValue=""
-      >
-        <option value="" disabled hidden>请选择</option>
-        {
-          props.componentProps?.options?.map((item) => (
-            <option
-              key={item.value}
-              value={item.value}
-            >
-              {item.label}
-            </option>
-          ))
-        }
-      </select>
-    </div>
+    <select
+      onChange={(e) => {
+        props.onChange(e.target.value)
+      }}
+      aria-invalid={props.error ? true : undefined}
+      disabled={props.disabled}
+    >
+      <option value="" disabled hidden>Please select</option>
+      {
+        props.componentProps?.options?.map((item) => (
+          <option
+            key={item.value}
+            value={item.value}
+          >
+            {item.label}
+          </option>
+        ))
+      }
+    </select>
   )
 }
 
 export const Title: TitleComponent = (props) => {
   return (
-    <p className="title">
+    <label>
       {props.title}
-      {props.validating ? ' ...' : ' *'}
-    </p>
+      <span style={{ color: '#D93526' }}>{props.required ? '' : ' *'}</span>
+    </label>
+  )
+}
+
+export const Error: ErrorComponent = (props) => {
+  return (
+    <small style={{ color: '#ce7e7b' }}>{props.error}</small>
   )
 }
 
 export const Layout: LayoutComponent = (props) => {
-  const titleNode = props.titleNode || (<p className="title">{props.field.title}</p>)
-  const errorNode = props.errorNode || (<p className="is-error">{props.field.error}</p>)
+  const titleNode = props.titleNode || (
+    <label>
+      {props.field.title}
+      <span style={{ color: '#D93526' }}>{props.field.required ? ' *' : ''}</span>
+    </label>
+  )
+  const errorNode = props.errorNode || (
+    <small style={{ color: '#ce7e7b' }}>{props.field.error}</small>
+  )
 
   return (
-    <div
-      style={{ marginBottom: 10 }}
-    >
+    <fieldset>
       {titleNode}
       {props.componentNode}
       {errorNode}
-    </div>
+    </fieldset>
   )
 }
 
 export const FieldLayout: LayoutComponent = (props) => {
-  const titleNode = <p className="title">{props.field.title}</p>
-  const errorNode = <p className="is-error">{props.field.error}</p>
+  const titleNode = (
+    <label>
+      {props.field.title}
+      <span style={{ color: '#D93526' }}>{props.field.required ? '' : ' *'}</span>
+    </label>
+  )
+  const errorNode = (
+    <small style={{ color: '#ce7e7b' }}>{props.field.error}</small>
+  )
 
   return (
-    <div
-      style={{ margin: '100px 0' }}
-    >
+    <fieldset>
       {titleNode}
       {props.componentNode}
       {errorNode}
-    </div>
+    </fieldset>
   )
 }

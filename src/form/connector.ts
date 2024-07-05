@@ -203,7 +203,7 @@ export default class<T extends FieldDatas = ObjectAny> {
     })
   }
 
-  public addField(name: string, data: FieldData) {
+  public addField<P extends object = ObjectAny>(name: string, data: FieldData<P>) {
     if (this.store.getStore(name)) {
       throw new Error('duplicate field')
     }

@@ -1,36 +1,41 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
-import Form, { Field, Connector, FieldData, Validator, FieldComponent } from './form'
-import { Input, Radio, Select, Title, Layout, FieldLayout } from './renderers'
-import { notEmpty, promiseCheck, not } from './validators'
+import Form, { Field, Connector, FieldData, Validator, FieldComponent, FieldError } from './form'
+import { Input, Radio, Select, Title, Layout, FieldLayout, Placeholder, Option } from './renderers'
+import { promiseCheck, not } from './validators'
 
 const fields = {
-  nickname: {
-    title: 'Nickname',
+  input: {
+    title: 'Input',
     component: 'input',
     componentProps: {
-      placeholder: 'Input Name',
+      placeholder: 'please input',
     },
     required: true,
     validator: 'promiseCheck',
     validateInterval: 300,
-    // readOnly: true,
-  } as FieldData,
-  option: {
-    title: 'Option',
+  } as FieldData<Placeholder>,
+  'input-readonly': {
+    title: 'ReadOnly',
+    component: 'input',
+    componentProps: {
+      placeholder: 'input readonly',
+    },
+    readOnly: true,
+  } as FieldData<Placeholder>,
+  select: {
+    title: 'Select',
     component: 'select',
     componentProps: {
       options: [
         { label: 'YES', value: 'yes' },
         { label: 'NO', value: 'no' },
       ],
-      extra: '!!!',
     },
-    validator: 'empty',
     required: true,
-  },
+  } as FieldData<{ options: Option[] }>,
   radio: {
-    title: 'Option',
+    title: 'Radio',
     component: 'radio',
     componentProps: {
       options: [
@@ -39,113 +44,101 @@ const fields = {
       ],
     },
     validator: 'not',
-  },
-  select: {
+  } as FieldData<{ options: Option[] }>,
+  'radio-disabled': {
+    title: 'Disabled',
+    component: 'radio',
+    componentProps: {
+      options: [
+        { label: 'disabled', value: 'disabled' },
+      ],
+      disabled: true,
+    },
+  } as FieldData<{ options: Option[], disabled: boolean }>,
+  'select-loading': {
     required: true,
     title: 'Select',
     component: 'select',
-    loading: false,
-    componentProps: {
-    },
-  },
+    loading: true,
+  } as FieldData<{ options: Option[] }>,
+  hidden: {} as FieldData,
 }
+
+type F = typeof fields
+
 const renderers = {
   input: Input,
   radio: Radio,
   select: Select,
-} as Record<string, FieldComponent<any>>
+}
 
 const validators = {
-  empty: notEmpty,
   promiseCheck,
   not,
 } as Record<string, Validator>
 
 const connector = new Connector(fields, { components: renderers, validators })
 
-connector.onChange = (v) => {
-  const e = connector.getFieldValues()
-  console.log(e)
-}
-
-connector.onFieldChange('nickname', ['description', 'value'], (a, b) => {
-  // connector.setField('nickname', { value: '!!!!' })
-})
-
-connector.onFieldComponentChange<{ placeholder: string }>('nickname', ['placeholder'], (n, o) => {
-  // console.log(n, o)
-})
-connector.onceFieldComponentChange<{ placeholder: string }>('nickname', ['*'], (n1, o1) => {
-  // console.log(n1, o1)
-})
-
-connector.onFieldComponentChange('nickname', ['*'], (a, b, c) => {
-  console.log(c)
-})
-
-connector.onFieldChange('nickname', ['*', 'value'], (c, d, k) => {
-  console.log(k)
-})
-
-connector.onFieldChange('select', ['*'], (a, b) => {
-  // console.log(a, b)
-})
-
 const Entry = () => {
   const [loading, setLoading] = useState(false)
+  const [disabled, setDisabled] = useState(false)
+  const [info, setInfo] = useState('')
 
   useEffect(() => {
     setTimeout(() => {
-      connector.setFieldComponentProps('option', {
+      connector.setFieldComponentProps<{ options: Option[] }>('select-loading', {
         options: [
-          { label: 'YESS', value: 'yes' },
-          { label: 'NON', value: 'no' },
+          { label: 'Loading-YESS', value: 'yes' },
+          { label: 'loading-NON', value: 'no' },
         ],
-        extra: <div>???</div>,
       })
 
-      connector.addField('add', {
+      connector.setField('select-loading', { loading: false })
+
+      connector.addField<Placeholder>('add', {
         component: 'input',
         componentProps: {
-          placeholder: 'add',
+          placeholder: 'please input',
         },
+        required: true,
         title: 'Add',
       })
-    }, 3000)
+    }, 1000)
   }, [])
 
   return (
-    <div style={{ padding: 50 }}>
+    <div style={{ padding: 50, display: 'flex' }}>
+      <div style={{ width: 600, marginRight: 50 }}>
       <Form
         connector={connector}
         fieldLayout={Layout}
-        // disabled
+        disabled={disabled}
       >
         <div className="field">
-          <Field<typeof fields>
+          <Field<F>
             title={Title}
-            name="nickname"
-          />
-          <button onClick={() => {
-            connector.setFieldComponentProps<{ placeholder: string, a: number }>('nickname', { placeholder: '!!!' })
-            // connector.setField('nickname', { value: '123' })
-          }}>get</button>
-        </div>
-        <div className="field">
-          <Field
-            title={() => null}
-            name="option"
+            name="input"
           />
         </div>
         <div className="field">
-          <Field
+          <Field<F>
+            name="input-readonly"
+          />
+        </div>
+        <div className="field">
+          <Field<F>
             name="radio"
             layout={FieldLayout}
           />
         </div>
         <div className="field">
-          <Field
-            name="select"
+          <Field<F>
+            name="radio-disabled"
+          />
+        </div>
+        <div className="field">
+          <Field<F>
+            name="add"
           />
         </div>
         <div className="field">
@@ -153,31 +146,35 @@ const Entry = () => {
             name="add"
           />
         </div>
+
+        <div role="group">
+          <button>Add Field</button>
+          <button
+            aria-busy={loading}
+            onClick={async () => {
+              setLoading(true)
+              try {
+                const res = await connector.validateFields()
+                console.log(res)
+              } catch (e) {
+                const next = (e as FieldError[]).map((s) => ({
+                  name: s.name,
+                  error: s.error,
+                }))
+                setInfo(`Validate error: \n${JSON.stringify(next, null, 4)}`)
+              } finally {
+                setLoading(false)
+              }
+            }}
+          >
+            Submit
+          </button>
+          <button>Set Disabled</button>
+        </div>
       </Form>
+      </div>
 
-      {
-        loading ? (
-          <span className="is-warning">Submiting</span>
-        ) : null
-      }
-
-      <button
-        style={{ marginTop: 20, display: loading ? 'none' : 'block' }}
-        onClick={async () => {
-          // connector.setField('option', { title: '___' })
-          setLoading(true)
-          try {
-            const res = await connector.validateFields()
-            console.log(res)
-          } catch (e) {
-            console.warn(e)
-          } finally {
-            setLoading(false)
-          }
-        }}
-      >
-        Submit
-      </button>
+      <article style={{ flex: 1, whiteSpace: 'pre-wrap' }}>{info}</article>
     </div>
   )
 }

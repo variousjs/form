@@ -1,9 +1,3 @@
-export const notEmpty = (v?: string) => {
-  if (v === undefined) {
-    return 'empty value'
-  }
-}
-
 export const not = (v?: string) => {
   if (!v || v === 'donot') {
     return 'donot'

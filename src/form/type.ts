@@ -23,7 +23,7 @@ export interface FieldData<P extends object = ObjectAny> {
   /** field hidden status, value enable */
   hidden?: boolean,
 
-  /** field disabled status, value disabled */
+  /** field disabled status, value disabled, not component disabled */
   disabled?: boolean,
 
   /** field error message */
@@ -62,7 +62,7 @@ export interface FieldComponentProps<P extends object = ObjectAny> extends Field
   onChange: (v: FieldData['value']) => void,
 }
 
-export type FieldComponent<P extends object = ObjectAny> = ComponentType<FieldComponentProps<P>>
+export type FieldComponent<P extends object = any> = ComponentType<FieldComponentProps<P>>
 
 export type Validator = (
   value: FieldData['value'],
@@ -113,6 +113,12 @@ export interface ComponentPropsChageCallback<P extends object = ObjectAny> {
   __once?: boolean,
   __triggered?: boolean,
   __properties?: string[],
+}
+
+export interface FieldError<K extends Record<string, FieldData> = ObjectAny> {
+  name: UnionString<keyof K>,
+  error: FieldData['error'],
+  field: FieldData,
 }
 
 // Internal

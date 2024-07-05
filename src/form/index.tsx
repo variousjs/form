@@ -25,6 +25,7 @@ export type {
   Validator,
   FieldData,
   ConnectorChange,
+  FieldError,
 } from './type'
 
 const setProps = (props: FormProps): ReactNode => {
