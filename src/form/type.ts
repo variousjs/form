@@ -52,6 +52,9 @@ export interface FieldData<P extends object = ObjectAny> {
 
   /** field has been modified by user */
   touched?: boolean,
+
+  /** field position sequence, for useFields */
+  sequence?: number,
 }
 
 export type ConnectorChange<K extends Record<string, FieldData> = ObjectAny> = (
@@ -148,3 +151,5 @@ interface FieldWraperProps {
 }
 
 export type FieldWrapper = (props: FieldWraperProps) => ReactElement | null
+
+export type FieldDataWithName = { name: string } & FieldData

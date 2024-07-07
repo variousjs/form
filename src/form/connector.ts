@@ -1,6 +1,7 @@
 import Nycticorax from 'nycticorax'
 import eq from 'fast-deep-equal'
 import type N from 'nycticorax'
+import getHooks from './hooks'
 import {
   FieldData,
   FieldDatas,
@@ -26,6 +27,8 @@ export default class<T extends FieldDatas = ObjectAny> {
   public store: N<State>
   public renderers: FieldComponents
   public validators: Validators
+  public useFields: ReturnType<typeof getHooks<T>>['useFields']
+  public useField: ReturnType<typeof getHooks<T>>['useField']
 
   constructor(
     fields: T,
@@ -37,12 +40,18 @@ export default class<T extends FieldDatas = ObjectAny> {
     this.store = new Nycticorax<State>()
     this.renderers = config.components || {}
     this.validators = config.validators || {}
+    this.useFields = () => null as any
+    this.useField = () => null as any
     this.init(fields)
   }
 
   private init(fields: FieldDatas) {
     this.store.createStore({ ...fields, [INITIALIZED]: true })
     this.store.onChange = (v) => this.onStateChange(v as any)
+
+    const hooks = getHooks<T>(this)
+    this.useFields = hooks.useFields
+    this.useField = hooks.useField
   }
 
   public set onChange(fn: ConnectorChange<T>) {

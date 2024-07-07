@@ -14,6 +14,7 @@ const fields = {
     required: true,
     validator: 'promiseCheck',
     validateInterval: 300,
+    sequence: 100,
   } as FieldData<Placeholder>,
   'input-readonly': {
     title: 'ReadOnly',
@@ -22,6 +23,7 @@ const fields = {
       placeholder: 'input readonly',
     },
     readOnly: true,
+    sequence: 1,
   } as FieldData<Placeholder>,
   select: {
     title: 'Select',
@@ -33,6 +35,7 @@ const fields = {
       ],
     },
     required: true,
+    sequence: 2,
   } as FieldData<{ options: Option[] }>,
   radio: {
     title: 'Radio',
@@ -84,6 +87,11 @@ const Entry = () => {
   const [disabled, setDisabled] = useState(false)
   const [info, setInfo] = useState('')
 
+  const fields = connector.useFields()
+  const field = connector.useField('input-readonly')
+
+  console.log(fields)
+
   useEffect(() => {
     setTimeout(() => {
       connector.setFieldComponentProps<{ options: Option[] }>('select-loading', {
@@ -101,6 +109,7 @@ const Entry = () => {
           placeholder: 'please input',
         },
         required: true,
+        sequence: 999,
         title: 'Add',
       })
     }, 1000)
