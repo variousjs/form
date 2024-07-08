@@ -8,7 +8,7 @@ function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>
     connector,
     name,
     disabled,
-    readonly,
+    readOnly,
   } = props
 
   if (!connector) {
@@ -52,7 +52,7 @@ function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>
 
   return (
     <Render
-      readOnly={readonly}
+      readOnly={readOnly}
       disabled={disabled}
       {...field}
       onChange={onValueChange}

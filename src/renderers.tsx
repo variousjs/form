@@ -4,11 +4,11 @@ import { ErrorComponent, FieldComponent, LayoutComponent, TitleComponent } from 
 export interface Placeholder { placeholder: string }
 export interface Option { label: string, value: string }
 
-export const Input: FieldComponent<Placeholder> = (props) => {
+export const Input: FieldComponent<Placeholder & { disabled: boolean }> = (props) => {
   return (
     <input
       aria-invalid={props.error ? true : undefined}
-      disabled={props.disabled}
+      disabled={props.componentProps?.disabled}
       readOnly={props.readOnly}
       placeholder={props.componentProps?.placeholder}
       value={props.value as string || ''}
@@ -19,7 +19,7 @@ export const Input: FieldComponent<Placeholder> = (props) => {
   )
 }
 
-export const Radio: FieldComponent<{ options: Option[], disabled: boolean }> = (props) => {
+export const Radio: FieldComponent<{ options: Option[] }> = (props) => {
   return (
     <fieldset>
       {
@@ -32,7 +32,7 @@ export const Radio: FieldComponent<{ options: Option[], disabled: boolean }> = (
               type="radio"
               value={item.value}
               checked={props.value === item.value}
-              disabled={props.componentProps?.disabled}
+              disabled={props.readOnly}
             />
             {item.label}
           </label>
@@ -55,9 +55,9 @@ export const Select: FieldComponent<{ options: Option[] }> = (props) => {
         props.onChange(e.target.value)
       }}
       aria-invalid={props.error ? true : undefined}
-      disabled={props.disabled}
+      disabled={props.readOnly}
     >
-      <option value="" disabled hidden>Please select</option>
+      <option hidden>Please select</option>
       {
         props.componentProps?.options?.map((item) => (
           <option

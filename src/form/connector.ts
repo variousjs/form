@@ -191,12 +191,8 @@ export default class<T extends FieldDatas = ObjectAny> {
       return
     }
 
-    this.store.emit({
-      [name]: {
-        ...current,
-        componentProps: nextProps,
-      },
-    })
+    const next = { ...current,  componentProps: nextProps }
+    this.store.emit({ [name]: next }, true)
 
     const activeProperties = Object.keys(data || {})
 
@@ -279,7 +275,11 @@ export default class<T extends FieldDatas = ObjectAny> {
           ? this.validators[field.validator]
           : () => field.value === undefined ? 'field required' : undefined
 
-        error = await validator(field.value, field)
+        if (field.value === undefined && field.required) {
+          error = 'field required'
+        } else {
+          error = await validator(field.value, field)
+        }
       }
 
       return { name, error, field }

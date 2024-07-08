@@ -4,7 +4,7 @@ import Form, { Field, Connector, FieldData, Validator, FieldComponent, FieldErro
 import { Input, Radio, Select, Title, Layout, FieldLayout, Placeholder, Option } from './renderers'
 import { promiseCheck, not } from './validators'
 
-const fields = {
+const fieldsData = {
   input: {
     title: 'Input',
     component: 'input',
@@ -49,7 +49,7 @@ const fields = {
     validator: 'not',
   } as FieldData<{ options: Option[] }>,
   'radio-disabled': {
-    title: 'Disabled',
+    title: 'Radio Disabled',
     component: 'radio',
     componentProps: {
       options: [
@@ -60,14 +60,12 @@ const fields = {
   } as FieldData<{ options: Option[], disabled: boolean }>,
   'select-loading': {
     required: true,
-    title: 'Select',
+    title: 'Select Loading',
     component: 'select',
     loading: true,
   } as FieldData<{ options: Option[] }>,
   hidden: {} as FieldData,
 }
-
-type F = typeof fields
 
 const renderers = {
   input: Input,
@@ -80,17 +78,14 @@ const validators = {
   not,
 } as Record<string, Validator>
 
-const connector = new Connector(fields, { components: renderers, validators })
+const connector = new Connector(fieldsData, { components: renderers, validators })
 
 const Entry = () => {
   const [loading, setLoading] = useState(false)
-  const [disabled, setDisabled] = useState(false)
+  const [readOnly, setReadOnly] = useState(false)
   const [info, setInfo] = useState('')
 
   const fields = connector.useFields()
-  const field = connector.useField('input-readonly')
-
-  console.log(fields)
 
   useEffect(() => {
     setTimeout(() => {
@@ -102,17 +97,7 @@ const Entry = () => {
       })
 
       connector.setField('select-loading', { loading: false })
-
-      connector.addField<Placeholder>('add', {
-        component: 'input',
-        componentProps: {
-          placeholder: 'please input',
-        },
-        required: true,
-        sequence: 999,
-        title: 'Add',
-      })
-    }, 1000)
+    }, 3000)
   }, [])
 
   return (
@@ -121,43 +106,33 @@ const Entry = () => {
       <Form
         connector={connector}
         fieldLayout={Layout}
-        disabled={disabled}
+        readOnly={readOnly}
       >
-        <div className="field">
-          <Field<F>
-            title={Title}
-            name="input"
-          />
-        </div>
-        <div className="field">
-          <Field<F>
-            name="input-readonly"
-          />
-        </div>
-        <div className="field">
-          <Field<F>
-            name="radio"
-            layout={FieldLayout}
-          />
-        </div>
-        <div className="field">
-          <Field<F>
-            name="radio-disabled"
-          />
-        </div>
-        <div className="field">
-          <Field<F>
-            name="add"
-          />
-        </div>
-        <div className="field">
-          <Field
-            name="add"
-          />
-        </div>
+        {
+          fields.map((field) => (
+            <div key={field.name} className="field">
+              <Field
+                name={field.name}
+              />
+            </div>
+          ))
+        }
 
         <div role="group">
-          <button>Add Field</button>
+          <button
+            onClick={() => {
+              connector.addField<Placeholder>('add', {
+                component: 'input',
+                componentProps: {
+                  placeholder: 'please input',
+                },
+                required: true,
+                title: 'Add',
+              })
+            }}
+          >
+            Add Field
+          </button>
           <button
             aria-busy={loading}
             onClick={async () => {
@@ -166,6 +141,7 @@ const Entry = () => {
                 const res = await connector.validateFields()
                 console.log(res)
               } catch (e) {
+                console.log(e)
                 const next = (e as FieldError[]).map((s) => ({
                   name: s.name,
                   error: s.error,
@@ -178,7 +154,11 @@ const Entry = () => {
           >
             Submit
           </button>
-          <button>Set Disabled</button>
+          <button
+            onClick={() => setReadOnly(!readOnly)}
+          >
+            Toggle ReadOnly
+          </button>
         </div>
       </Form>
       </div>
