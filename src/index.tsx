@@ -139,9 +139,8 @@ const Entry = () => {
               setLoading(true)
               try {
                 const res = await connector.validateFields()
-                console.log(res)
+                setInfo(`Form values: \n${JSON.stringify(res, null, 4)}`)
               } catch (e) {
-                console.log(e)
                 const next = (e as FieldError[]).map((s) => ({
                   name: s.name,
                   error: s.error,

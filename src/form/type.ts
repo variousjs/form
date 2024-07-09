@@ -90,7 +90,6 @@ export interface FieldProps<K extends Record<string, FieldData> = ObjectAny> {
   name: UnionString<keyof K>,
   connector?: Connector,
   readOnly?: boolean,
-  disabled?: boolean,
   layout?: LayoutComponent,
 }
 

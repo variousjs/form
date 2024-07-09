@@ -7,7 +7,6 @@ function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>
   const {
     connector,
     name,
-    disabled,
     readOnly,
   } = props
 
@@ -53,7 +52,6 @@ function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>
   return (
     <Render
       readOnly={readOnly}
-      disabled={disabled}
       {...field}
       onChange={onValueChange}
     />

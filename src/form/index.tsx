@@ -40,7 +40,6 @@ const setProps = (props: FormProps): ReactNode => {
 
       const F = cloneElement(element, {
         connector: props.connector,
-        disabled: props.disabled,
         readOnly: props.readOnly,
         ...rest,
       })
@@ -55,13 +54,13 @@ const setProps = (props: FormProps): ReactNode => {
       )
     }
 
+    // @ts-ignore
     if (element.props.children) {
       element = cloneElement(element, {
         // @ts-ignore
         children: setProps({
           ...element.props as any,
           connector: props.connector,
-          disabled: props.disabled,
           readOnly: props.readOnly,
           fieldLayout: props.fieldLayout,
         }),
