@@ -12,7 +12,7 @@ const fieldsData = {
       placeholder: 'please input',
     },
     required: true,
-    validator: 'promiseCheck',
+    // validator: 'promiseCheck',
     validateInterval: 300,
     sequence: 100,
   } as FieldData<Placeholder>,

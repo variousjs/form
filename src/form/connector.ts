@@ -32,7 +32,7 @@ export default class<T extends FieldDatas = any> {
 
   constructor(
     fields: T,
-    config: { components: FieldComponents, validators: Validators },
+    config: { components: FieldComponents, validators?: Validators },
   ) {
     this.fieldChangeSubscribers = {}
     this.componentPropsChangeSubscribers = {}
@@ -275,7 +275,7 @@ export default class<T extends FieldDatas = any> {
           ? this.validators[field.validator]
           : () => field.value === undefined ? 'field required' : undefined
 
-        if (field.value === undefined && field.required) {
+        if ((field.value === undefined || field.value === '') && field.required) {
           error = 'field required'
         } else {
           error = await validator(field.value, field)
