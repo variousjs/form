@@ -215,7 +215,11 @@ export default class<T extends FieldDatas = any> {
     this.store.emit({ [name]: data })
   }
 
-  public validateField(name: UnionString<keyof T>) {
+  public validateField(name: UnionString<keyof T>, catchError?: boolean) {
+    if (catchError) {
+      this.check(name).catch(() => null)
+      return
+    }
     return this.check(name)
   }
 

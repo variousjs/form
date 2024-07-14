@@ -45,7 +45,7 @@ function F<K extends Record<string, FieldData> = ObjectAny>(props: FieldProps<K>
         next,
         item,
       )
-      onValidate(name)
+      onValidate(name, true)
     }
   }
 
