@@ -19,7 +19,7 @@ import {
 
 export const INITIALIZED = Symbol('INITIALIZED')
 
-export default class<T extends FieldDatas = ObjectAny> {
+export default class<T extends FieldDatas = any> {
   private fieldChangeSubscribers: Record<string, FieldChageCallback[]>
   private componentPropsChangeSubscribers: Record<string, ComponentPropsChageCallback<any>[]>
   private onStateChange: ConnectorChange<T>
