@@ -223,8 +223,15 @@ export default class<T extends FieldDatas = any> {
     return this.check(name)
   }
 
-  public validateFields() {
-    return this.check()
+  public async validateFields() {
+    const result = await this.check()
+    const data = {} as Record<UnionString<keyof T>, FieldData['value']>
+
+    result.forEach((item) => {
+      data[item.name] = item.field.value
+    })
+
+    return data
   }
 
   private async check(name?: UnionString<keyof T>) {
@@ -241,7 +248,7 @@ export default class<T extends FieldDatas = any> {
         continue
       }
 
-      result.push({ name: key, value: item.value, field: item })
+      result.push({ name: key, field: item })
 
       if (!item.validator || !this.validators[item.validator]) {
         if (!item.required) {

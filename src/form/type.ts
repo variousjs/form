@@ -138,7 +138,6 @@ export type Validators = Record<string, Validator>
 
 export interface FieldValue<T extends string> {
   name: T,
-  value: FieldData['value'],
   field: FieldData,
 }
 
