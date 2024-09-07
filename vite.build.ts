@@ -4,7 +4,10 @@ export default defineConfig({
   build: {
     outDir: './dist',
     rollupOptions: {
-      external: ["react", "react-router-dom"],
+      external: ["react", "react/jsx-runtime"],
+      output: {
+        exports: 'named',
+      },
     },
     minify: false,
     lib: {
